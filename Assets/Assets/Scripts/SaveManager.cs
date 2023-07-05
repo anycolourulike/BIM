@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { set; get; }
-    int playerLives = 25;
+    int playerLives = 15;
     int startingLevel = 2;
     
 
