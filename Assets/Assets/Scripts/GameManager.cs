@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 	public int playerLives = 0;
 	public int levelsCompleted = 0;
 
-	private void Awake()
+    private void Awake()
 	{
 		DontDestroyOnLoad(gameObject);
 		Instance = this;

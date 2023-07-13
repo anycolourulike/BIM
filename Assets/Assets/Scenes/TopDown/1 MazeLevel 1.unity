@@ -2057,18 +2057,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 506448723}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &518829264 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7162496447967190602, guid: c81932b915bb102498b60fb13bfbdc20,
-    type: 3}
-  m_PrefabInstance: {fileID: 825557485535541090}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53330ec5b5286ea47b160444bbb86944, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &559268142
 GameObject:
   m_ObjectHideFlags: 0
@@ -8016,6 +8004,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player (Biffo)
       objectReference: {fileID: 0}
+    - target: {fileID: 8558272676907263613, guid: 27fc6bd71f866ce4189b5e2a896f8144,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 27fc6bd71f866ce4189b5e2a896f8144, type: 3}
 --- !u!4 &1961960909 stripped
@@ -9394,7 +9387,7 @@ PrefabInstance:
         type: 3}
       propertyPath: rewardedAdsButton
       value: 
-      objectReference: {fileID: 518829264}
+      objectReference: {fileID: 0}
     - target: {fileID: 4844162067400057396, guid: f7a8a516939445142b228a89972fab8e,
         type: 3}
       propertyPath: canvas
@@ -9474,6 +9467,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GameScene
+      objectReference: {fileID: 0}
+    - target: {fileID: 4844162068271556092, guid: f7a8a516939445142b228a89972fab8e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4844162068271556093, guid: f7a8a516939445142b228a89972fab8e,
         type: 3}

@@ -12,7 +12,7 @@ public class BiffoMover : MonoBehaviour
     
     Vector3 movementDir;  
     Rigidbody rb;
-    bool stopped;
+   // bool stopped;
     bool moveForward;
     bool moveBackward;
     bool moveRight;
@@ -123,7 +123,7 @@ public class BiffoMover : MonoBehaviour
     {
         anim.SetFloat("x", 0);
         anim.SetFloat("y", 0);
-        stopped = true;
+        //stopped = true;
         movementDir = new Vector3(0f,0f,0f);
         transform.Translate(movementDir, Space.World);
     }

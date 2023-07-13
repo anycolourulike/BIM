@@ -57,7 +57,7 @@ public class LevelManager : MonoBehaviour
         {
             var gameScene = FindObjectOfType<GameScene>();
             var interAd = gameScene.GetComponent<InterstitialAds>();
-            interAd.ShowAd();
+            //interAd.ShowAd();
         } 
                 
         SceneManager.LoadScene(sceneToSave);
