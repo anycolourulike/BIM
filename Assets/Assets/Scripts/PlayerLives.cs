@@ -5,35 +5,35 @@ using TMPro;
 using UnityEngine.UI;
 
 public class PlayerLives : MonoBehaviour
-{        
+{
     [SerializeField] TextMeshProUGUI livesText;
     public int playerLives;
-    bool playerIsAlive = false;    
+    bool playerIsAlive = false;
 
     private void Update()
     {
         playerIsAlive = true;
-        playerLives = GameManager.Instance.playerLives;
-        PlayerIsAlive();        
-    }  
+        //playerLives = GameManager.Instance.playerLives;
+        PlayerIsAlive();
+    }
 
     public void PlayerIsAlive()
-    {   
-            if (playerIsAlive)
+    {
+        if (playerIsAlive)
+        {
+            if (playerLives > 0)
             {
-                if (playerLives > 0)
-                {
-                    DisplayLives(playerLives);
-                }
-                else
-                {
-                    playerIsAlive = false;
-                }
-            }        
+                DisplayLives(playerLives);
+            }
+            else
+            {
+                playerIsAlive = false;
+            }
+        }
     }
 
     public void DisplayLives(int livesToDisplay)
-    {        
+    {
         int livesLeft = Mathf.FloorToInt(livesToDisplay);
         livesText.text = string.Format("{000}", livesLeft);
     }

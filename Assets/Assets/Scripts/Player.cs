@@ -7,14 +7,27 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] GameObject Biffo;      
+    [SerializeField] GameObject player;
+    [SerializeField] GameObject enemies;
     [SerializeField] ParticleSystem PlayerDeath;
     [SerializeField] ParticleSystem PlayerCompleteLevel;
     [SerializeField] UnityEvent onDeath;
     [SerializeField] TMP_Text text;
+    [SerializeField] GameObject invBtn;
+    [SerializeField] GameObject equip;
+    [SerializeField] GameObject pickUp;
+    [SerializeField] GameObject dive;
+    [SerializeField] GameObject enemyUI1;
+    [SerializeField] GameObject enemyUI2;
+    [SerializeField] GameObject enemyUI3;
+    [SerializeField] GameObject enemyUI4;
     Animation PUAnim;
     PlayerFollow PlayerCam;
-    GameObject pauseButton;   
+    GameObject pauseButton;
+
+    public RectTransform enemyUI; // Reference to the Enemy UI element
+    public RectTransform centerUI; // Reference to the Center UI element
+    public float distanceFromCenter = 250f; // Fixed distance from the center    
 
     public float doorOpenTimer;
     public delegate void PlayerDead();
@@ -31,41 +44,34 @@ public class Player : MonoBehaviour
         playerHasDied -= HandlePlayerDeath;
     }
 
+    //Add PickUp
+    //Add Draw Weapon
+    //Add Ranged Weapon
+    //Inventory
+    //Add Dive
+
+    //Find and add enemies. Find Enemy manager Object. Called By a trigger. On Exit the Fight area the list clears
+    //Populate Buttons with correct UI and rotation.
+
     private void Start()
     {
         PUAnim = FindObjectOfType<Animation>();
         pauseButton = GameObject.FindWithTag("Pause");
-    }         
+    }
 
-    public IEnumerator Bounce()
+    // Positions the Enemy UI object at a specified angle relative to the center UI object.
+    public void PositionEnemyUIAtAngle(float angle)
     {
-        Biffo.transform.gameObject.tag = "Bounce";        
-        text.enabled = true;
-        text.SetText("BOUNCE OFF WALLS");
-        yield return new WaitForSeconds(15f);
+        // Convert angle to radians, as Unity's trigonometric functions use radians
+        float angleInRadians = angle * Mathf.Deg2Rad;
 
-        PUAnim.Play("PUAnim");
-        yield return new WaitForSeconds(5f);
-        PUAnim.Stop("PUAnim");
-        text.enabled = false;
+        // Calculate the new position based on the angle and fixed distance
+        float xOffset = Mathf.Cos(angleInRadians) * distanceFromCenter;
+        float yOffset = Mathf.Sin(angleInRadians) * distanceFromCenter;
 
-        Biffo.transform.gameObject.tag = "Player";    
-    } 
-
-    public IEnumerator Shrink()
-    {
-        Biffo.transform.localScale = new Vector3(0.5f, 0.356f, 0.5f);
-        text.enabled = true;
-        text.SetText("SHRUNK");
-        yield return new WaitForSecondsRealtime(15f);
-        
-        PUAnim.Play("PUAnim");
-        yield return new WaitForSeconds(5f);
-        PUAnim.Stop("PUAnim");
-        text.enabled = false;
-
-        Biffo.transform.localScale = new Vector3(1f, 0.356f, 1f); 
-    }     
+        // Set the position of the Enemy UI relative to the Center UI's position
+        enemyUI.anchoredPosition = new Vector2(centerUI.anchoredPosition.x + xOffset, centerUI.anchoredPosition.y + yOffset);
+    }
 
     public IEnumerator ShowTEXT15()
     {
@@ -88,11 +94,11 @@ public class Player : MonoBehaviour
         text.enabled = true;
         text.SetText("Door Open");
         yield return new WaitForSeconds(doorOpenTimer);
-        
+
         PUAnim.Play("PUAnim");
         yield return new WaitForSeconds(5f);
         PUAnim.Stop("PUAnim");
-        text.enabled = false;        
+        text.enabled = false;
     }
 
     public void DisableText()
@@ -101,61 +107,90 @@ public class Player : MonoBehaviour
     }
 
     public void PlayerCrash()
-    {        
+    {
         this.gameObject.tag = "Respawn";
         onDeath.Invoke(); //play audio
         playerHasDied?.Invoke(); // Pause Time & handle Player Death
-        Instantiate(PlayerDeath, Biffo.transform.position, Quaternion.identity);
+        Instantiate(PlayerDeath, player.transform.position, Quaternion.identity);
     }
 
     public void OutOfTime()
     {
         onDeath.Invoke(); //play audio
         playerHasDied?.Invoke(); // Pause Time & handle Player Death
-        Instantiate(PlayerDeath, Biffo.transform.position, Quaternion.identity);
+        Instantiate(PlayerDeath, player.transform.position, Quaternion.identity);
     }
 
     public void PlayerComlpete()
     {
-        Instantiate(PlayerCompleteLevel, Biffo.transform.position, Quaternion.identity);
+        Instantiate(PlayerCompleteLevel, player.transform.position, Quaternion.identity);
     }
 
     void HandlePlayerDeath()
-    {   
-        this.gameObject.tag = "Respawn";    
-        Biffo.GetComponent<MeshRenderer>().enabled = false;
-        Biffo.GetComponent<BoxCollider>().enabled = false;
+    {
+        this.gameObject.tag = "Respawn";
+        player.GetComponent<MeshRenderer>().enabled = false;
+        player.GetComponent<BoxCollider>().enabled = false;
         PlayerCam.GetComponent<PlayerFollow>().enabled = false;
-        Biffo.GetComponent<BiffoMover>().enabled = false;
-        
+        player.GetComponent<BlazeMover>().enabled = false;
+
         SaveManager.Instance.OnPlayerDeath();
         var playerLivesLeft = GameManager.Instance.playerLives;
-        SaveManager.Instance.Save();        
-        pauseButton.SetActive(false);        
+        SaveManager.Instance.Save();
+        pauseButton.SetActive(false);
 
         if (playerLivesLeft == 0)
         {
             DialogUI.Instance
              .SetTitle("Game Over")
-             .SetMessage("Puny Human!")             
+             .SetMessage("Puny Human!")
              .OnClose(LevelManager.loadMenu)
              .Show();
         }
-        if (playerLivesLeft % 3 == 0) 
+        if (playerLivesLeft % 3 == 0)
         {
-             DialogUI.Instance
-              .SetTitle("Ouch!")
-              .SetMessage("Poor Blaze!")                 
-              .OnClose(LevelManager.reloadLevel)
-              .Show();
+            DialogUI.Instance
+             .SetTitle("Ouch!")
+             .SetMessage("Poor Blaze!")
+             .OnClose(LevelManager.reloadLevel)
+             .Show();
         }
         else
         {
-             DialogUI.Instance
-              .SetTitle("You Died!")
-              .SetMessage("One Life Lost!")
-              .OnClose(LevelManager.reloadLevel)
-              .Show();            
+            DialogUI.Instance
+             .SetTitle("You Died!")
+             .SetMessage("One Life Lost!")
+             .OnClose(LevelManager.reloadLevel)
+             .Show();
         }
     }
+
+
+    float GetAngleBetweenObjects(Transform player, Transform enemy)
+    {
+        ////// Direction vector from player to enemy
+        Vector3 directionToEnemy = enemy.position - player.position;
+
+        // Project the direction onto the horizontal plane to ignore vertical differences
+        directionToEnemy.y = 0;
+
+        // Find the forward vector of the player in the horizontal plane
+        Vector3 playerForward = player.forward;
+        playerForward.y = 0;
+
+        // Calculate the angle between the player's forward direction and the direction to the enemy
+        float angle = Vector3.Angle(playerForward, directionToEnemy);
+
+        // Determine if the enemy is to the left or right of the player
+        float crossProductY = Vector3.Cross(playerForward, directionToEnemy).y;
+        if (crossProductY < 0)
+        {
+            angle = -angle;
+        }
+
+        return angle;
+    }
 }
+
+
+

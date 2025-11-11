@@ -6,12 +6,14 @@ using UnityEngine.SceneManagement;
 
 public class GameScene : MonoBehaviour
 {
-	public CanvasGroup fadeGroup;	
+	public CanvasGroup fadeGroup;
 	private float fadeInDuration = 3;
 	private bool gameStarted;
 	[SerializeField] UnityEvent Music;
 	[SerializeField] UnityEvent levelComplete;
 	[SerializeField] GameObject pauseMenu;
+
+   
 
 	private void Start()
 	{	
