@@ -12,9 +12,8 @@ public class PlayerTouchMovement : MonoBehaviour
     [SerializeField] private FloatingJoystick joystick;
 
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 3.5f;
-    [SerializeField] private float rotationSpeed = 10f;
-    [SerializeField] private float stoppingDistance = 0.1f;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float rotationSpeed;
     [SerializeField] private NavMeshAgent agent;
 
     [Header("Jump")]
@@ -28,10 +27,9 @@ public class PlayerTouchMovement : MonoBehaviour
     private Finger movementFinger;          // Finger controlling the joystick
     private Vector2 movementAmount; 
     private Canvas rootCanvas;  
-    private Camera mainCam;      // Touch-based movement delta
+    private Camera mainCam;                 // Touch-based movement delta
     private  Animator anim;
     private Rigidbody rb;
-    
     
 
     private void Awake()
@@ -50,7 +48,7 @@ public class PlayerTouchMovement : MonoBehaviour
 
         // Initialize references
         controls = new PlayerControls();
-        anim = GetComponentInChildren<Animator>();
+        anim = GetComponent<Animator>();
         mainCam = Camera.main;
 
         if (joystick != null)
@@ -58,7 +56,7 @@ public class PlayerTouchMovement : MonoBehaviour
             joystick.gameObject.SetActive(false);
             rootCanvas = joystick.GetComponentInParent<Canvas>();
         }
-    }
+    }    
 
     private void OnEnable()
     {
@@ -71,6 +69,9 @@ public class PlayerTouchMovement : MonoBehaviour
         ETouch.Touch.onFingerDown += OnFingerDown;
         ETouch.Touch.onFingerUp += OnFingerUp;
         ETouch.Touch.onFingerMove += OnFingerMove;
+
+        if (jumpButton != null)
+        jumpButton.onClick.AddListener(TryJump);
     }
 
     private void OnDisable()
@@ -84,6 +85,25 @@ public class PlayerTouchMovement : MonoBehaviour
         ETouch.Touch.onFingerUp -= OnFingerUp;
         ETouch.Touch.onFingerMove -= OnFingerMove;
         ETouch.EnhancedTouchSupport.Disable();
+
+         if (jumpButton != null)
+        jumpButton.onClick.RemoveListener(TryJump);
+    }
+
+    private void Update()
+    {
+        Vector2 input = movementFinger != null ? movementAmount : moveInput;
+        Vector3 moveDir = GetWorldDirection(input);
+
+        if (moveDir.sqrMagnitude > 0.1f)
+        {
+            MoveCharacter(moveDir);
+            RotateCharacter(moveDir);
+        }
+        else
+        {
+            PlayerStop();
+        }
     }
 
     private void OnMovePerformed(InputAction.CallbackContext ctx)
@@ -96,41 +116,10 @@ public class PlayerTouchMovement : MonoBehaviour
         moveInput = Vector2.zero;
     }
 
-     private void OnJumpPerformed(InputAction.CallbackContext ctx)
+    private void OnJumpPerformed(InputAction.CallbackContext ctx)
     {
         TryJump();
-    }
-
-      private void TryJump()
-    {
-        if (IsGrounded() && !isJumping)
-        {
-            Jump();
-        }
-    }
-
-      private bool IsGrounded()
-    {
-        return Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance + 0.1f, groundMask);
-    }
-
-    private void Jump()
-    {
-        isJumping = true;
-        rb.isKinematic = false;
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
-        agent.ResetPath(); // Stop NavMeshAgent while in air
-        StartCoroutine(JumpRoutine());
-    }
-
-    private System.Collections.IEnumerator JumpRoutine()
-    {
-        while (!IsGrounded())
-            yield return null;
-
-        rb.isKinematic = true;
-        isJumping = false;
-    }
+    }   
 
     // --- TOUCH INPUT HANDLING ---
 
@@ -148,8 +137,7 @@ public class PlayerTouchMovement : MonoBehaviour
             // Convert to anchored position relative to canvas
             joystick.RectTransform.anchoredPosition = ScreenToCanvasPosition(finger.screenPosition);
             joystick.ResetKnob();
-        }
-        else PlayerStop();
+        }        
     }
 
     private void OnFingerUp(Finger finger)
@@ -190,36 +178,10 @@ public class PlayerTouchMovement : MonoBehaviour
         return localPos;
     }
 
-    // --- MOVEMENT ---
-
-    private void Update()
-    {
-        Vector2 input = movementFinger != null ? movementAmount : moveInput;
-        Vector3 moveDir = GetWorldDirection(input);
-
-        if (moveDir.sqrMagnitude > 0.01f)
-        {
-            MoveCharacter(moveDir);
-            RotateCharacter(moveDir);
-        }
-        else
-        {
-            PlayerStop();
-        }
-
-        UpdateAnimator();
-    }
-
-    private void PlayerStop()
-    {
-        Debug.Log("PlayerStop");
-        agent.ResetPath();
-        agent.speed = 0f;
-        anim.SetFloat("Locomotion", 0f);
-    }
+    // --- MOVEMENT ---     
 
     private Vector3 GetWorldDirection(Vector2 input)
-    {
+    {  
         if (input.sqrMagnitude < 0.001f) return Vector3.zero;
 
         Vector3 camForward = mainCam.transform.forward;
@@ -228,33 +190,60 @@ public class PlayerTouchMovement : MonoBehaviour
         camRight.y = 0;
         camForward.Normalize();
         camRight.Normalize();
-
         return (camForward * input.y + camRight * input.x).normalized;
     }
 
     private void MoveCharacter(Vector3 direction)
     {
-        Vector3 targetPos = transform.position + direction * moveSpeed * Time.deltaTime;
-        if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 0.5f, NavMesh.AllAreas))
-            agent.SetDestination(hit.position);
+        moveSpeed = agent.speed;
+        agent.Move(direction * moveSpeed * Time.deltaTime);
+        anim.SetFloat("Locomotion", 1f);
+        //Vector3 targetPos = transform.position + direction * moveSpeed * Time.deltaTime;
+        //if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 0.5f, NavMesh.AllAreas))
+           // agent.SetDestination(hit.position);
+            
+    }
+
+    private void PlayerStop()
+    {        
+        anim.SetFloat("Locomotion", 0f);        
     }
 
     private void RotateCharacter(Vector3 direction)
     {
+        rotationSpeed = agent.angularSpeed;
         Quaternion targetRot = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
     }
 
-    private void UpdateAnimator()
-    {        
-        if (anim == null) 
+     public void TryJump()
+    {
+        if (IsGrounded() && !isJumping)
         {
-            Debug.Log("No animator on player object");
-            return;
+            Jump();
         }
+    }
 
-        float velocity = agent.speed;
-        Debug.Log("Player velocity is" + " " + velocity);
-        anim.SetFloat("Locomotion", velocity, 1f, Time.deltaTime);
+    private bool IsGrounded()
+    {
+        return Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance + 0.1f, groundMask);
+    }
+
+    private void Jump()
+    {
+        isJumping = true;
+        rb.isKinematic = false;
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        agent.ResetPath(); // Stop NavMeshAgent while in air
+        StartCoroutine(JumpRoutine());
+    }
+
+    private System.Collections.IEnumerator JumpRoutine()
+    {
+        while (!IsGrounded())
+            yield return null;
+
+        rb.isKinematic = true;
+        isJumping = false;
     }
 }
