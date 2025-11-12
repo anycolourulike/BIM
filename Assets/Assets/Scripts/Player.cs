@@ -129,10 +129,10 @@ public class Player : MonoBehaviour
     void HandlePlayerDeath()
     {
         this.gameObject.tag = "Respawn";
-        player.GetComponent<MeshRenderer>().enabled = false;
+        player.GetComponentInParent<MeshRenderer>().enabled = false;
         player.GetComponent<BoxCollider>().enabled = false;
         PlayerCam.GetComponent<PlayerFollow>().enabled = false;
-        player.GetComponent<BlazeMover>().enabled = false;
+      
 
         SaveManager.Instance.OnPlayerDeath();
         var playerLivesLeft = GameManager.Instance.playerLives;
