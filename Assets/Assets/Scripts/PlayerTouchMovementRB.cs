@@ -98,6 +98,8 @@ public class PlayerTouchMovement_RB : MonoBehaviour
             rb.velocity = new Vector3(0, rb.velocity.y, 0);
             anim.SetFloat("Locomotion", 0f);
         }
+
+        CheckAirState();
     }
 
     private void OnMovePerformed(InputAction.CallbackContext ctx) => moveInput = ctx.ReadValue<Vector2>();
@@ -179,10 +181,34 @@ public class PlayerTouchMovement_RB : MonoBehaviour
         }
     }
 
+    private void CheckAirState()
+    { 
+        bool grounded = IsGrounded();
+
+         // If player is NOT grounded and not jumping → InAir = true
+        if (!grounded && !isJumping)
+        {
+           anim.SetBool("InAir", true);
+        }
+        // If grounded and NOT jumping → InAir = false
+        else if (grounded && !isJumping)
+        {
+           anim.SetBool("InAir", false);
+        }
+
+        // If isJumping == true, leave "InAir" alone — jump code will manage it
+     }
+    
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, groundCheckDistance + 0.1f, groundMask);
-    }
+        // Raycast slightly above player downward
+        return Physics.Raycast(
+        transform.position + Vector3.up * 0.1f,
+        Vector3.down,
+        groundCheckDistance + 0.1f,
+        groundMask
+        );
+    } 
 
     private System.Collections.IEnumerator ResetJump()
     {
