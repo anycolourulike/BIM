@@ -55,7 +55,7 @@ using System.Collections;
                
         private void UpdateAnimator()
         {
-            anim.SetFloat("locomotion", maxSpeed);         
+            anim.SetFloat("Locomotion", maxSpeed);         
         }
 
 

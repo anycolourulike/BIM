@@ -11,7 +11,7 @@ public class EndGame : MonoBehaviour
         if (other.tag == "Player")
         {
             onWin.Invoke();            
-            Player.GetComponent<BiffoMover>().enabled = false;
+           
 
             DialogUI.Instance
              .SetTitle("Most")

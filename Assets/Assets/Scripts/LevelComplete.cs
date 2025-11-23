@@ -14,8 +14,7 @@ public class LevelComplete : MonoBehaviour
         {
             onWin.Invoke();
             Player.GetComponent<MeshRenderer>().enabled = false;
-            FindObjectOfType<Player>().PlayerComlpete();
-            Player.GetComponent<BlazeMover>().enabled = false;          
+            FindObjectOfType<Player>().PlayerComlpete();        
         }        
     }    
 }

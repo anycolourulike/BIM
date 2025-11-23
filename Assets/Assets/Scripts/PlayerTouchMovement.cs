@@ -197,11 +197,7 @@ public class PlayerTouchMovement : MonoBehaviour
     {
         moveSpeed = agent.speed;
         agent.Move(direction * moveSpeed * Time.deltaTime);
-        anim.SetFloat("Locomotion", 1f);
-        //Vector3 targetPos = transform.position + direction * moveSpeed * Time.deltaTime;
-        //if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 0.5f, NavMesh.AllAreas))
-           // agent.SetDestination(hit.position);
-            
+        anim.SetFloat("Locomotion", 1f);            
     }
 
     private void PlayerStop()

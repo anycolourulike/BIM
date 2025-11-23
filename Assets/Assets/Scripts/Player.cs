@@ -21,9 +21,10 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject enemyUI2;
     [SerializeField] GameObject enemyUI3;
     [SerializeField] GameObject enemyUI4;
-    Animation PUAnim;
-    PlayerFollow PlayerCam;
+    [SerializeField] PlayerFollow PlayerCam;
     GameObject pauseButton;
+    Animation PUAnim;
+    
 
     public RectTransform enemyUI; // Reference to the Enemy UI element
     public RectTransform centerUI; // Reference to the Center UI element
@@ -35,7 +36,6 @@ public class Player : MonoBehaviour
 
     private void OnEnable()
     {
-        PlayerCam = FindObjectOfType<PlayerFollow>();
         playerHasDied += HandlePlayerDeath;
     }
 
@@ -131,7 +131,6 @@ public class Player : MonoBehaviour
         this.gameObject.tag = "Respawn";
         player.GetComponentInParent<MeshRenderer>().enabled = false;
         player.GetComponent<BoxCollider>().enabled = false;
-        PlayerCam.GetComponent<PlayerFollow>().enabled = false;
       
 
         SaveManager.Instance.OnPlayerDeath();

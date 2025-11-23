@@ -10,7 +10,7 @@ public class CloseDoorTrigger : MonoBehaviour
 
     void Start()
     {
-       playerObj = GameObject.Find("Player (Biffo)");
+       playerObj = GameObject.Find("Player (Blaze)");
        player = playerObj.GetComponent<Player>();
     }
 
