@@ -12,9 +12,8 @@ public class PlayerFall : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            Player.GetComponent<Player>().PlayerCrash();
-            Player.GetComponent<MeshRenderer>().enabled = false;
-            Instantiate(PlayerDeath, Player.transform.position, Quaternion.identity);                                   
+            Player.GetComponent<Player>().HandlePlayerDeath();
+            //Play Death Anim
         }
     }
 }

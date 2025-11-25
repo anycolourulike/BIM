@@ -226,6 +226,60 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HideDialog"",
+                    ""type"": ""Button"",
+                    ""id"": ""cda5c1ac-5799-42c9-81a6-2602a1200ce2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CloseMap"",
+                    ""type"": ""Button"",
+                    ""id"": ""6842a83e-5d37-4be6-b2a5-011552e0041f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ResumeGame"",
+                    ""type"": ""Button"",
+                    ""id"": ""2c490c03-5798-4835-8f91-41e5b61d3502"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""WatchAd"",
+                    ""type"": ""Button"",
+                    ""id"": ""fa9fff5d-4033-4f91-abea-7898c3dbed4a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Menu"",
+                    ""type"": ""Button"",
+                    ""id"": ""8095eaf2-611f-45a9-8094-9c824ab1ad11"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Quit"",
+                    ""type"": ""Button"",
+                    ""id"": ""712f5a68-4e40-4cbd-8501-b2676842302c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -393,6 +447,72 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""LookAtEnemy"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9e3118ac-6840-4356-b773-cd48ee1657ed"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HideDialog"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fadc3319-0765-4659-8213-9de8bd3824c5"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CloseMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2cb13d56-2214-45c5-a559-fd591e51a5a4"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ResumeGame"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f0c5df6e-de1e-4aa3-a6ca-2924d2577744"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""WatchAd"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""36dd6b77-3fab-4eeb-acae-d7fa1415d534"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Menu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""802b4c72-435b-44ec-849b-20188ab08875"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -416,6 +536,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_DefendRight = m_Player.FindAction("DefendRight", throwIfNotFound: true);
         m_Player_DefendLeft = m_Player.FindAction("DefendLeft", throwIfNotFound: true);
         m_Player_LookAtEnemy = m_Player.FindAction("LookAtEnemy", throwIfNotFound: true);
+        m_Player_HideDialog = m_Player.FindAction("HideDialog", throwIfNotFound: true);
+        m_Player_CloseMap = m_Player.FindAction("CloseMap", throwIfNotFound: true);
+        m_Player_ResumeGame = m_Player.FindAction("ResumeGame", throwIfNotFound: true);
+        m_Player_WatchAd = m_Player.FindAction("WatchAd", throwIfNotFound: true);
+        m_Player_Menu = m_Player.FindAction("Menu", throwIfNotFound: true);
+        m_Player_Quit = m_Player.FindAction("Quit", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -511,6 +637,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_DefendRight;
     private readonly InputAction m_Player_DefendLeft;
     private readonly InputAction m_Player_LookAtEnemy;
+    private readonly InputAction m_Player_HideDialog;
+    private readonly InputAction m_Player_CloseMap;
+    private readonly InputAction m_Player_ResumeGame;
+    private readonly InputAction m_Player_WatchAd;
+    private readonly InputAction m_Player_Menu;
+    private readonly InputAction m_Player_Quit;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -583,6 +715,30 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @LookAtEnemy => m_Wrapper.m_Player_LookAtEnemy;
         /// <summary>
+        /// Provides access to the underlying input action "Player/HideDialog".
+        /// </summary>
+        public InputAction @HideDialog => m_Wrapper.m_Player_HideDialog;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/CloseMap".
+        /// </summary>
+        public InputAction @CloseMap => m_Wrapper.m_Player_CloseMap;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ResumeGame".
+        /// </summary>
+        public InputAction @ResumeGame => m_Wrapper.m_Player_ResumeGame;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/WatchAd".
+        /// </summary>
+        public InputAction @WatchAd => m_Wrapper.m_Player_WatchAd;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Menu".
+        /// </summary>
+        public InputAction @Menu => m_Wrapper.m_Player_Menu;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Quit".
+        /// </summary>
+        public InputAction @Quit => m_Wrapper.m_Player_Quit;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -653,6 +809,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @LookAtEnemy.started += instance.OnLookAtEnemy;
             @LookAtEnemy.performed += instance.OnLookAtEnemy;
             @LookAtEnemy.canceled += instance.OnLookAtEnemy;
+            @HideDialog.started += instance.OnHideDialog;
+            @HideDialog.performed += instance.OnHideDialog;
+            @HideDialog.canceled += instance.OnHideDialog;
+            @CloseMap.started += instance.OnCloseMap;
+            @CloseMap.performed += instance.OnCloseMap;
+            @CloseMap.canceled += instance.OnCloseMap;
+            @ResumeGame.started += instance.OnResumeGame;
+            @ResumeGame.performed += instance.OnResumeGame;
+            @ResumeGame.canceled += instance.OnResumeGame;
+            @WatchAd.started += instance.OnWatchAd;
+            @WatchAd.performed += instance.OnWatchAd;
+            @WatchAd.canceled += instance.OnWatchAd;
+            @Menu.started += instance.OnMenu;
+            @Menu.performed += instance.OnMenu;
+            @Menu.canceled += instance.OnMenu;
+            @Quit.started += instance.OnQuit;
+            @Quit.performed += instance.OnQuit;
+            @Quit.canceled += instance.OnQuit;
         }
 
         /// <summary>
@@ -709,6 +883,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @LookAtEnemy.started -= instance.OnLookAtEnemy;
             @LookAtEnemy.performed -= instance.OnLookAtEnemy;
             @LookAtEnemy.canceled -= instance.OnLookAtEnemy;
+            @HideDialog.started -= instance.OnHideDialog;
+            @HideDialog.performed -= instance.OnHideDialog;
+            @HideDialog.canceled -= instance.OnHideDialog;
+            @CloseMap.started -= instance.OnCloseMap;
+            @CloseMap.performed -= instance.OnCloseMap;
+            @CloseMap.canceled -= instance.OnCloseMap;
+            @ResumeGame.started -= instance.OnResumeGame;
+            @ResumeGame.performed -= instance.OnResumeGame;
+            @ResumeGame.canceled -= instance.OnResumeGame;
+            @WatchAd.started -= instance.OnWatchAd;
+            @WatchAd.performed -= instance.OnWatchAd;
+            @WatchAd.canceled -= instance.OnWatchAd;
+            @Menu.started -= instance.OnMenu;
+            @Menu.performed -= instance.OnMenu;
+            @Menu.canceled -= instance.OnMenu;
+            @Quit.started -= instance.OnQuit;
+            @Quit.performed -= instance.OnQuit;
+            @Quit.canceled -= instance.OnQuit;
         }
 
         /// <summary>
@@ -854,5 +1046,47 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLookAtEnemy(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "HideDialog" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnHideDialog(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CloseMap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCloseMap(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ResumeGame" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnResumeGame(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "WatchAd" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnWatchAd(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Menu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMenu(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Quit" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnQuit(InputAction.CallbackContext context);
     }
 }

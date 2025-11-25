@@ -1,17 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
-{	
-	public static GameManager Instance { set; get; }
+{
+    public static GameManager Instance;
 
-	public int playerLives = 0;
-	public int levelsCompleted = 0;
+    [SerializeField] public PlayerLives playerLives;
+    [SerializeField] public int levelsCompleted = 0;
 
     private void Awake()
-	{
-		DontDestroyOnLoad(gameObject);
-		Instance = this;
-	}
+    {
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        // Hook events
+        playerLives.OnLivesChanged += HandleLivesChanged;
+        playerLives.OnPlayerDied += HandlePlayerDeath;
+
+        // Initial UI sync
+        UIManager.Instance.UpdateLivesUI(playerLives.CurrentLives);
+    }
+
+    private void HandleLivesChanged(int newLives)
+    {
+        UIManager.Instance.UpdateLivesUI(newLives);
+    }
+
+    private void HandlePlayerDeath()
+    {
+        UIManager.Instance.ShowDialogue("You Died", "Try again?");
+        // Additional logic here (retry, game over menu, etc.)
+    }
 }
+

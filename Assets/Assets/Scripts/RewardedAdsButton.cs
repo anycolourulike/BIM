@@ -60,7 +60,7 @@ public class RewardedAdsButton : MonoBehaviour
             rewardedAd.Show((Reward reward) =>
             {
                 // TODO: Reward the user.
-                GameManager.Instance.playerLives += 3;
+                GameManager.Instance.playerLives.CurrentLives += 3;
             });
         }
     }

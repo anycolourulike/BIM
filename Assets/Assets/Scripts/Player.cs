@@ -106,14 +106,6 @@ public class Player : MonoBehaviour
         text.enabled = false;
     }
 
-    public void PlayerCrash()
-    {
-        this.gameObject.tag = "Respawn";
-        onDeath.Invoke(); //play audio
-        playerHasDied?.Invoke(); // Pause Time & handle Player Death
-        Instantiate(PlayerDeath, player.transform.position, Quaternion.identity);
-    }
-
     public void OutOfTime()
     {
         onDeath.Invoke(); //play audio
@@ -126,7 +118,7 @@ public class Player : MonoBehaviour
         Instantiate(PlayerCompleteLevel, player.transform.position, Quaternion.identity);
     }
 
-    void HandlePlayerDeath()
+    public void HandlePlayerDeath()
     {
         this.gameObject.tag = "Respawn";
         player.GetComponentInParent<MeshRenderer>().enabled = false;
@@ -134,7 +126,9 @@ public class Player : MonoBehaviour
       
 
         SaveManager.Instance.OnPlayerDeath();
-        var playerLivesLeft = GameManager.Instance.playerLives;
+        PlayerLives playerlives;
+        playerlives = GameManager.Instance.playerLives;
+        var playerLivesLeft = playerlives.CurrentLives;
         SaveManager.Instance.Save();
         pauseButton.SetActive(false);
 

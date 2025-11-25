@@ -12,7 +12,6 @@ public class GameScene : MonoBehaviour
 	[SerializeField] UnityEvent Music;
 	[SerializeField] UnityEvent levelComplete;
 	[SerializeField] GameObject pauseMenu;
-
    
 
 	private void Start()
@@ -39,25 +38,6 @@ public class GameScene : MonoBehaviour
 		DialogUI.Instance
 			.SetTitle("Well Done!")
 			.SetMessage("")
-			.OnClose(LevelManager.Instance.LoadNextLevel)
-			.Show();		
-	}
-
-	public void RocketLevelCrash()
-	{
-		DialogUI.Instance
-			.SetTitle("Crashed!")
-			.SetMessage("")
-			.OnClose(LevelManager.Instance.LoadNextLevel)
-			.Show();
-	}
-
-	public void RocketLevelComplete()
-	{
-		GameManager.Instance.playerLives += 3;
-		DialogUI.Instance
-			.SetTitle("Nice")
-			.SetMessage("+3 Lives!")
 			.OnClose(LevelManager.Instance.LoadNextLevel)
 			.Show();		
 	}

@@ -1,40 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
+using System;
 
 public class PlayerLives : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI livesText;
-    public int playerLives;
-    bool playerIsAlive = false;
+    [SerializeField] private int startingLives = 10;
 
-    private void Update()
+    public int CurrentLives { get; set; }
+    public bool IsAlive => CurrentLives > 0;
+
+    // Event: broadcast when lives change
+    public event Action<int> OnLivesChanged;
+
+    // Event: broadcast when player dies
+    public event Action OnPlayerDied;
+
+    private void Awake()
     {
-        playerIsAlive = true;
-        //playerLives = GameManager.Instance.playerLives;
-        PlayerIsAlive();
+        CurrentLives = startingLives;
     }
 
-    public void PlayerIsAlive()
+    public void LoseLife()
     {
-        if (playerIsAlive)
-        {
-            if (playerLives > 0)
-            {
-                DisplayLives(playerLives);
-            }
-            else
-            {
-                playerIsAlive = false;
-            }
-        }
+        if (CurrentLives <= 0)
+            return;
+
+        CurrentLives--;
+        OnLivesChanged?.Invoke(CurrentLives);
+
+        if (CurrentLives <= 0)
+            OnPlayerDied?.Invoke();
     }
 
-    public void DisplayLives(int livesToDisplay)
+    public void AddLife(int amount = 1)
     {
-        int livesLeft = Mathf.FloorToInt(livesToDisplay);
-        livesText.text = string.Format("{000}", livesLeft);
+        CurrentLives += amount;
+        OnLivesChanged?.Invoke(CurrentLives);
     }
 }

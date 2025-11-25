@@ -6,12 +6,14 @@ using UnityEngine.SceneManagement;
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { set; get; }
-    int playerLives = 15;
+    private PlayerLives playerlives;
+    int playerlivesCurrent;
     int startingLevel = 2;
     
 
     void Awake()
     {
+        playerlives = GetComponent<PlayerLives>();
         DontDestroyOnLoad(gameObject);
         Instance = this;
         Load();                       
@@ -19,7 +21,7 @@ public class SaveManager : MonoBehaviour
 
     public void Save()
     {
-        ES3.Save("playerLives", GameManager.Instance.playerLives);
+        ES3.Save("playerLives", playerlivesCurrent);
         ES3.Save("levelsCompleted", GameManager.Instance.levelsCompleted);
     }
 
@@ -27,11 +29,11 @@ public class SaveManager : MonoBehaviour
     {
         if (ES3.KeyExists("playerLives"))
         {
-            GameManager.Instance.playerLives = ES3.Load<int>("playerLives");
+            playerlives.CurrentLives = ES3.Load<int>("playerLives");
         }
         else
         {
-            GameManager.Instance.playerLives = playerLives;
+            playerlives.CurrentLives = playerlivesCurrent;
             Save();
             Debug.Log("No save file found");
         }
@@ -56,9 +58,9 @@ public class SaveManager : MonoBehaviour
 
     public void OnPlayerDeath()
     {
-        if(GameManager.Instance.playerLives > 0)
+        if(playerlives.CurrentLives > 0)
         {
-            GameManager.Instance.playerLives--;
+            playerlives.CurrentLives--;
             Save();
         }     
     }    
@@ -67,7 +69,7 @@ public class SaveManager : MonoBehaviour
     public void ResetSave()
     {
         ES3.DeleteFile("playerLives.es3");
-        GameManager.Instance.playerLives = playerLives;
+        playerlives.CurrentLives = playerlivesCurrent;
 
         ES3.DeleteFile("levelsCompleted.es3");
         GameManager.Instance.levelsCompleted = startingLevel;
