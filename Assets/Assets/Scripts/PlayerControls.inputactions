@@ -140,6 +140,60 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "HideDialog",
+                    "type": "Button",
+                    "id": "cda5c1ac-5799-42c9-81a6-2602a1200ce2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "CloseMap",
+                    "type": "Button",
+                    "id": "6842a83e-5d37-4be6-b2a5-011552e0041f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ResumeGame",
+                    "type": "Button",
+                    "id": "2c490c03-5798-4835-8f91-41e5b61d3502",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "WatchAd",
+                    "type": "Button",
+                    "id": "fa9fff5d-4033-4f91-abea-7898c3dbed4a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "8095eaf2-611f-45a9-8094-9c824ab1ad11",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Quit",
+                    "type": "Button",
+                    "id": "712f5a68-4e40-4cbd-8501-b2676842302c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -305,6 +359,72 @@
                     "processors": "",
                     "groups": "",
                     "action": "LookAtEnemy",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9e3118ac-6840-4356-b773-cd48ee1657ed",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HideDialog",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fadc3319-0765-4659-8213-9de8bd3824c5",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CloseMap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2cb13d56-2214-45c5-a559-fd591e51a5a4",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ResumeGame",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f0c5df6e-de1e-4aa3-a6ca-2924d2577744",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "WatchAd",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "36dd6b77-3fab-4eeb-acae-d7fa1415d534",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "802b4c72-435b-44ec-849b-20188ab08875",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Quit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

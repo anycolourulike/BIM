@@ -15,6 +15,7 @@ using System.Collections;
         public void Start()
         {
             navMeshAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            anim = GetComponent<Animator>();
             rb = GetComponent<Rigidbody>();
         }
 

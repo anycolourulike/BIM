@@ -33,7 +33,8 @@ public class EnemyAI : MonoBehaviour
     private Health health;
     private FieldOFView FOV;
     private CombatTarget combatTarget;
-    Fighter fighter;
+    private Fighter fighter;
+    private Animator anim;
 
     public bool isAttacking;  
     public bool isPatrolling;
@@ -47,6 +48,7 @@ public class EnemyAI : MonoBehaviour
     {
         
         stateMachine = new StateMachine();
+        anim = GetComponent<Animator>();
         health = GetComponent<Health>();
         mover = GetComponent<Mover>();
         FOV = GetComponent<FieldOFView>();
@@ -56,7 +58,7 @@ public class EnemyAI : MonoBehaviour
         timerForNextAttack = coolDown;
 
         //States       
-        patrol = new Patrol(this, patrolPath, mover, waypointTolerence, waypointDwellTime, 
+        patrol = new Patrol(anim, this, patrolPath, mover, waypointTolerence, waypointDwellTime, 
                             patrolSpeedFraction, timeSinceArrivedAtWaypoint, currentWaypointIndex, nextPosition);
         attack = new Attack(this, fighter, mover, FOV, health, timerForNextAttack, timeSinceLastSawPlayer, suspicionTime,
                              coolDown);  

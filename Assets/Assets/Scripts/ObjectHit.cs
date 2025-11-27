@@ -11,8 +11,7 @@ public class ObjectHit : MonoBehaviour
     {
         if (collision.collider.CompareTag("Player"))
         {
-            Player.GetComponent<Player>().PlayerCrash();
-            GetComponent<MeshRenderer>().material.color = Color.red;  
+            Player.GetComponent<Player>().HandlePlayerDeath();
         }                  
     }
 }

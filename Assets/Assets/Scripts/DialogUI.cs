@@ -17,6 +17,7 @@ public class Dialog
 public class DialogUI : MonoBehaviour
 {
 	[SerializeField] GameObject canvas;
+	[SerializeField] GameObject messageUI;
 	[SerializeField] TextMeshProUGUI titleUIText;
 	[SerializeField] TextMeshProUGUI messageUIText;
 	[SerializeField] Button closeUIButton;

@@ -7,6 +7,8 @@ public class Patrol : IState
    private readonly PatrolPath _patrolPath;
    private readonly Mover _mover;
    private readonly float _patrolSpeedFraction;
+   private float _currentDwellDuration;
+   public Animator _anim;
    public float _waypointDwellTime;
    public float _waypointTolerence;
    public int _currentWaypointIndex;
@@ -15,7 +17,7 @@ public class Patrol : IState
    EnemyAI _enemyAI;
 
 
-   public Patrol(EnemyAI enemyAI, PatrolPath patrolPath, Mover mover, float patrolSpeedFraction, float waypointDwellTime,
+   public Patrol(Animator anim, EnemyAI enemyAI, PatrolPath patrolPath, Mover mover, float patrolSpeedFraction, float waypointDwellTime,
        float waypointTolerence, float timeSinceArrivedAtWaypoint, int currentWaypointIndex, Vector3 nextPosition)
    {
      _patrolPath = patrolPath;
@@ -36,14 +38,21 @@ public class Patrol : IState
             if (AtWaypoint())
             {
                 _timeSinceArrivedAtWaypoint = 0f;
+                _currentDwellDuration = Random.Range(0.5f, 3f);
+                _anim.SetFloat("locomotion", 0f);
                 CycleWaypoint(); 
             }
             _nextPosition = GetCurrentWaypoint();
         }
-        if(_timeSinceArrivedAtWaypoint > _waypointDwellTime)
+        if(_timeSinceArrivedAtWaypoint > _currentDwellDuration)
         {
+            _anim.SetFloat("locomotion", 1f);
             _mover.StartMoveAction(_nextPosition, _patrolSpeedFraction);
-        }            
+        }
+        else
+        {
+            _anim.SetFloat("locomotion", 0f);
+        }
     }  
  
     private bool AtWaypoint()
