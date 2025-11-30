@@ -1,23 +1,24 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Fighter : MonoBehaviour
 {
     public enum WeaponType { Melee, Ranged }
-    public enum Direction { Up = 0, Down = 1, Left = 2, Right = 3 }
+    public enum Direction { Up, Down, Left, Right }
 
-    [Header("Animation & Weapon Settings")]
+    [Header("Animation & Weapon")]
     public Animator anim;
-    public string attackStateName = "Attack"; // animation state (optional)
     public WeaponType currentWeapon = WeaponType.Melee;
 
+    [Header("Animator Layers")]
+    public int swordAttackLayer = 2;
+    public int defendLayer = 3;
+
     [Header("Combat State")]
-    public bool isAttacking;
-    public bool isDefending;
     public bool isEnemy;
     public bool canAct = true;
 
-    [Header("Stamina Settings")]
+    [Header("Stamina")]
     public float stamina = 100f;
     public float maxStamina = 100f;
     public float staminaRegenRate = 10f;
@@ -26,355 +27,257 @@ public class Fighter : MonoBehaviour
     public float staminaCostShoot = 25f;
 
     [Header("Timing")]
-    [Tooltip("Hold >= this value => defend. Less => attack.")]
-    public float holdThreshold = 0.28f; // hold threshold for long-press (0.25-0.35 recommended)
-    [Tooltip("Allowed time difference (s) between defend start and attack time for a successful parry.")]
-    public float parryWindow = 0.20f;   // mobile-friendly parry window
+    public float holdThreshold = 0.28f; // seconds to enter defend
+    public float parryWindow = 0.2f;
 
-    [Header("Enemy / Targeting")]
-    public Transform[] potentialTargets = new Transform[4]; // assigned from outside, up to 4
+    [Header("Targeting")]
+    public Transform[] potentialTargets = new Transform[4];
     public int selectedTargetIndex = 0;
     public Transform target => (selectedTargetIndex >= 0 && selectedTargetIndex < potentialTargets.Length) ? potentialTargets[selectedTargetIndex] : null;
 
     [Header("Projectile")]
     public GameObject projectilePrefab;
-    public float projectileSpeed = 18.3f;
+    public float projectileSpeed = 18f;
 
-    // Internal: per-direction press tracking
-    private struct PressState
+    // Input System
+    private PlayerControls controls;
+    private InputAction[] directionActions = new InputAction[4];
+
+    // Input state
+    private struct DirectionState
     {
         public bool pressed;
-        public float pressStartTime;
-        public Direction direction;
+        public float pressTime;
+        public bool defending;
     }
-    private PressState[] presses = new PressState[4];
+    private DirectionState[] directions = new DirectionState[4];
 
-    // Defense tracking (used to evaluate parry timing)
-    private bool[] isDefendingDir = new bool[4];
-    private float[] defendStartTime = new float[4];
-
-    // Animator hashes (avoid string lookups at runtime)
-    private static readonly int DefendHash = Animator.StringToHash("Defend");
+    // Animator hashes
     private static readonly int AttackDirHash = Animator.StringToHash("AttackDirection");
     private static readonly int DefendDirHash = Animator.StringToHash("DefendDirection");
+    private static readonly int DefendHash = Animator.StringToHash("Defend");
     private static readonly int EquipHash = Animator.StringToHash("Equip");
 
-    void Awake()
+    private void Awake()
     {
-        // initialize press states
+        controls = new PlayerControls();
+        directionActions[0] = controls.Player.AttackUp;
+        directionActions[1] = controls.Player.AttackDown;
+        directionActions[2] = controls.Player.AttackLeft;
+        directionActions[3] = controls.Player.AttackRight;
+
         for (int i = 0; i < 4; i++)
         {
-            presses[i] = new PressState { pressed = false, pressStartTime = 0f, direction = (Direction)i };
-            isDefendingDir[i] = false;
-            defendStartTime[i] = -9999f;
+            int idx = i;
+            directionActions[i].started += ctx => OnPress(idx);
+            directionActions[i].canceled += ctx => OnRelease(idx);
         }
     }
 
-    void Update()
+    private void OnEnable() => controls.Enable();
+    private void OnDisable() => controls.Disable();
+
+    private void Update()
     {
-        // Stamina regen every frame, clamped
+        // Stamina regen
         if (stamina < maxStamina)
             stamina = Mathf.Clamp(stamina + staminaRegenRate * Time.deltaTime, 0f, maxStamina);
 
-        // For enemies, a simple AI tick could go here (kept minimal)
-        if (isEnemy)
+        // Check hold -> defend
+        if (canAct)
         {
-            EnemyTick();
+            for (int i = 0; i < 4; i++)
+            {
+                if (directions[i].pressed && !directions[i].defending)
+                {
+                    if (Time.time - directions[i].pressTime >= holdThreshold && stamina >= staminaCostParry)
+                        StartDefend((Direction)i);
+                }
+            }
         }
+
+        // Enemy AI (optional)
+        if (isEnemy) EnemyTick();
     }
 
-    #region Input hooks (UI should call these)
-    // Call on pointer down / button pressed for the given direction
-    public void OnDirectionPress(int dir)
+    #region Input
+    private void OnPress(int dir)
     {
         if (!canAct) return;
-        if (dir < 0 || dir > 3) return;
-
-        presses[dir].pressed = true;
-        presses[dir].pressStartTime = Time.time;
-        presses[dir].direction = (Direction)dir;
-        // We do not immediately decide attack vs defend until release; for defend we require holdThreshold
-        // However defend must be recognizable while held for parry timing - so set defend when threshold is reached.
-        StartCoroutine(CheckHoldStart((Direction)dir));
+        directions[dir].pressed = true;
+        directions[dir].pressTime = Time.time;
     }
 
-    // Call on pointer up / button released for the given direction
-    public void OnDirectionRelease(int dir)
+    private void OnRelease(int dir)
     {
-        if (dir < 0 || dir > 3) return;
+        if (!directions[dir].pressed) return;
 
-        var press = presses[dir];
-        if (!press.pressed)
-            return;
+        float held = Time.time - directions[dir].pressTime;
+        directions[dir].pressed = false;
 
-        float held = Time.time - press.pressStartTime;
-        presses[dir].pressed = false;
-
-        // If we entered defend state (isDefendingDir) keep defend until released; release now
-        if (isDefendingDir[dir])
+        if (directions[dir].defending)
         {
             EndDefend((Direction)dir);
             return;
         }
 
-        // If not defending, interpret as attack (tap)
         if (held < holdThreshold)
-        {
             TryAttack((Direction)dir);
-        }
     }
 
-    // Optional: call this if the player cancels input (e.g., UI closes)
     public void CancelAllInputs()
     {
         for (int i = 0; i < 4; i++)
         {
-            presses[i].pressed = false;
-            if (isDefendingDir[i])
-                EndDefend((Direction)i);
+            directions[i].pressed = false;
+            if (directions[i].defending) EndDefend((Direction)i);
         }
     }
     #endregion
 
-    #region Hold detection
-    private IEnumerator CheckHoldStart(Direction dir)
-    {
-        int i = (int)dir;
-        float start = presses[i].pressStartTime;
-        // Wait until threshold or release
-        while (presses[i].pressed)
-        {
-            if (Time.time - start >= holdThreshold)
-            {
-                // Start defend (if we have stamina and can act)
-                if (!isDefendingDir[i] && stamina >= staminaCostParry && canAct)
-                {
-                    StartDefend(dir);
-                }
-                yield break;
-            }
-            yield return null;
-        }
-    }
-    #endregion
-
-    #region Attack / Defend execution
+    #region Attack / Defend
     private void TryAttack(Direction dir)
     {
         if (!canAct) return;
+
         if (currentWeapon == WeaponType.Ranged)
         {
             if (stamina < staminaCostShoot) return;
             stamina -= staminaCostShoot;
-            // Fire projectile at target
-            if (target != null)
-            {
-                FireProjectile(target.position);
-            }
-            // Play ranged attack animation (use attack direction for variation)
+            if (target != null) FireProjectile(target.position);
             PlayAttackAnimation(dir);
         }
-        else // Melee
+        else
         {
             if (stamina < staminaCostAttack) return;
             stamina -= staminaCostAttack;
-            // Perform attack: if target exists, resolve parry / hit
+
             if (target != null)
             {
-                // Evaluate parry on target
-                Fighter targetFighter = target.GetComponent<Fighter>();
-                if (targetFighter != null)
-                {
-                    bool parried = targetFighter.TryParry(dir, parryWindow, Time.time);
-                    if (parried)
-                    {
-                        OnAttackParried(targetFighter, dir);
-                    }
-                    else
-                    {
-                        OnAttackHit(targetFighter, dir);
-                    }
-                }
+                Fighter tgt = target.GetComponent<Fighter>();
+                if (tgt != null && tgt.TryParry(dir, parryWindow, Time.time))
+                    OnAttackParried(tgt, dir);
                 else
-                {
-                    // No fighter component -- hit implicit target
-                    OnAttackHit(null, dir);
-                }
+                    OnAttackHit(tgt, dir);
             }
-            else
-            {
-                // No target selected: maybe swing in direction for visuals
-                PlayAttackAnimation(dir);
-            }
+            else PlayAttackAnimation(dir);
         }
     }
 
     private void StartDefend(Direction dir)
     {
         int i = (int)dir;
-        if (!canAct) return;
-        if (stamina < staminaCostParry) return;
+        if (!canAct || stamina < staminaCostParry) return;
 
-        isDefendingDir[i] = true;
-        defendStartTime[i] = Time.time;
-        isDefending = true; // general flag (true while any dir is defending)
-        // Do not immediately deduct stamina on start; deduct on successful parry or optionally while holding.
-        // Here we deduct once on start to reserve stamina:
+        directions[i].defending = true;
         stamina -= staminaCostParry;
 
-        // Animator: set defend params
-        if (anim != null)
-        {
-            anim.SetBool(DefendHash, true);
-            anim.SetInteger(DefendDirHash, (int)dir);
-        }
+        anim?.SetBool(DefendHash, true);
+        anim?.SetInteger(DefendDirHash, i);
+        SetLayerWeight(defendLayer, 1f);
     }
 
     private void EndDefend(Direction dir)
     {
         int i = (int)dir;
-        if (!isDefendingDir[i]) return;
-        isDefendingDir[i] = false;
-        defendStartTime[i] = -9999f;
+        directions[i].defending = false;
 
-        // If no other direction is defending, clear general flag
-        bool anyDef = false;
-        for (int k = 0; k < 4; k++) if (isDefendingDir[k]) { anyDef = true; break; }
-        isDefending = anyDef;
+        bool anyDefending = false;
+        for (int j = 0; j < 4; j++) if (directions[j].defending) { anyDefending = true; break; }
 
-        // Animator
-        if (!anyDef && anim != null)
+        if (!anyDefending)
         {
-            anim.SetBool(DefendHash, false);
-            // Optionally signal defend ended
+            anim?.SetBool(DefendHash, false);
+            SetLayerWeight(defendLayer, 0f);
         }
     }
 
-    // Called by attacker to let defender attempt parry.
-    // Returns true if parry succeeded.
-    public bool TryParry(Direction incomingAttackDirection, float window, float attackTime)
+    public bool TryParry(Direction attackDir, float window, float attackTime)
     {
-        int d = (int)incomingAttackDirection;
-        // Defender must be defending in the same direction
-        if (!isDefendingDir[d]) return false;
+        int i = (int)attackDir;
+        if (!directions[i].defending) return false;
 
-        // Defender must have started defend within window of attack time (allow pre-hold or slight late)
-        float dt = Mathf.Abs(attackTime - defendStartTime[d]);
-        if (dt <= window)
+        float dt = attackTime - directions[i].pressTime;
+        if (dt >= 0f && dt <= window)
         {
-            // Successful parry
-            // Optionally, consume stamina (already deducted on start) or apply additional effect
-            OnSuccessfulParry(incomingAttackDirection);
+            OnSuccessfulParry(attackDir);
             return true;
         }
-
-        // Not within timing window -> fail
         return false;
     }
     #endregion
 
-    #region Attack/Parry callbacks
-    private void OnAttackParried(Fighter defender, Direction dir)
-    {
-        // Play attack parried animation or recoil
-        PlayAttackAnimation(dir);
-        // Optionally apply small stun, stamina drain, etc.
-        // Example: attacker loses a fraction of remaining stamina
-        stamina = Mathf.Max(0f, stamina - (staminaCostAttack * 0.2f));
-        // Inform defender (already handled in TryParry)
-    }
-
-    private void OnAttackHit(Fighter defender, Direction dir)
-    {
-        // Play attack hit animation and apply damage
-        PlayAttackAnimation(dir);
-        // Here you would call defender.ApplyDamage(...)
-        if (defender != null)
-        {
-            // Placeholder: call a damage method if exists
-            // defender.ApplyDamage(damageAmount);
-        }
-    }
-
-    private void OnSuccessfulParry(Direction dir)
-    {
-        // Play parry success feedback (sound, animation)
-        if (anim != null)
-        {
-            // Optionally play separate parry animation
-            anim.SetTrigger("ParrySuccess");
-        }
-    }
-    #endregion
-
-    #region Animation helpers
+    #region Animations
     private void PlayAttackAnimation(Direction dir)
     {
         if (anim == null) return;
         anim.SetInteger(AttackDirHash, (int)dir);
-        // Option A: use triggers or play specific state:
         anim.SetTrigger("Attack");
-        // If you prefer playing a specific layer/state:
-        // anim.Play(attackStateName);
+
+        float duration = anim.GetCurrentAnimatorStateInfo(swordAttackLayer).length;
+        StartCoroutine(ActivateLayerTemporarily(swordAttackLayer, duration));
     }
+
+    private System.Collections.IEnumerator ActivateLayerTemporarily(int layer, float duration)
+    {
+        SetLayerWeight(layer, 1f);
+        yield return new WaitForSeconds(duration);
+        SetLayerWeight(layer, 0f);
+    }
+
+    private void SetLayerWeight(int layer, float weight) => anim?.SetLayerWeight(layer, weight);
+
+    private void OnAttackParried(Fighter defender, Direction dir)
+    {
+        PlayAttackAnimation(dir);
+        stamina = Mathf.Max(0f, stamina - staminaCostAttack * 0.2f);
+    }
+
+    private void OnAttackHit(Fighter defender, Direction dir) => PlayAttackAnimation(dir);
+
+    private void OnSuccessfulParry(Direction dir) => anim?.SetTrigger("ParrySuccess");
     #endregion
 
-    #region Projectile
+    #region Projectiles
     private void FireProjectile(Vector3 targetPos)
     {
         if (projectilePrefab == null) return;
-        GameObject proj = Instantiate(projectilePrefab, transform.position + Vector3.up * 1.0f, Quaternion.identity);
-        // Expect projectile to have a script with Launch(Vector3) method or rigidbody
+
+        GameObject proj = Instantiate(projectilePrefab, transform.position + Vector3.up, Quaternion.identity);
         var p = proj.GetComponent<Projectile>();
         if (p != null) p.Launch(targetPos);
         else
         {
-            // fallback: set velocity if rigidbody present
             var rb = proj.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                Vector3 dir = (targetPos - proj.transform.position).normalized;
-                rb.velocity = dir * projectileSpeed;
-            }
+            if (rb != null) rb.velocity = (targetPos - proj.transform.position).normalized * projectileSpeed;
         }
-        // Play ranged attack animation
-        if (anim != null) PlayAttackAnimation(Direction.Up); // or use stored dir if you want
+        PlayAttackAnimation(Direction.Up); // optional: adjust direction
     }
     #endregion
 
-    #region Target selection & equip
-    public void SelectTarget(int index)
-    {
-        if (index < 0 || index >= potentialTargets.Length) return;
-        selectedTargetIndex = index;
-        // Optional: update UI highlight, etc.
-    }
-
+    #region Target & Equip
+    public void SelectTarget(int index) { if (index >= 0 && index < potentialTargets.Length) selectedTargetIndex = index; }
     public void ToggleEquip()
     {
-        // Toggle melee/ranged (inventory integration later)
         currentWeapon = (currentWeapon == WeaponType.Melee) ? WeaponType.Ranged : WeaponType.Melee;
-        if (anim != null) anim.SetTrigger(EquipHash);
+        anim?.SetTrigger(EquipHash);
     }
     #endregion
 
-    #region Simple Enemy AI hook (placeholder)
-    private float aiDecisionTimer = 0f;
-    private float aiDecisionInterval = 0.5f;
+    #region Enemy AI
+    private float aiTimer = 0f;
+    private float aiInterval = 0.5f;
 
     private void EnemyTick()
     {
-        // Minimal AI example: choose a random attack direction occasionally
-        aiDecisionTimer -= Time.deltaTime;
-        if (aiDecisionTimer <= 0f)
+        aiTimer -= Time.deltaTime;
+        if (aiTimer <= 0f)
         {
-            aiDecisionTimer = aiDecisionInterval;
+            aiTimer = aiInterval;
             if (canAct && target != null)
             {
-                // Example: simple melee attack if in range
-                Direction chosen = (Direction)Random.Range(0, 4);
-                // Execute attack (simulate press+release)
-                TryAttack(chosen);
+                Direction dir = (Direction)Random.Range(0, 4);
+                TryAttack(dir);
             }
         }
     }

@@ -29,6 +29,7 @@ public class Patrol : IState
      _timeSinceArrivedAtWaypoint = timeSinceArrivedAtWaypoint;
      _currentWaypointIndex = currentWaypointIndex;
      _nextPosition = nextPosition;
+     _anim = anim;
    }
 
     void PatrolBehaviour()
