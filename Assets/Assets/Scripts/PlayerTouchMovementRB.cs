@@ -141,11 +141,11 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     #region Movement
     private void HandleMovement()
     {
+        CheckAirState();
         Vector2 input = isMovementFingerActive ? movementAmount : moveInput;
         Vector3 moveDir = GetWorldDirection(input);
-
         HandleStrafing(input);
-
+        if (weaponEquipped) return;
         if (moveDir.sqrMagnitude > 0.1f)
         {
             RotateCharacter(moveDir);
@@ -158,8 +158,6 @@ public class PlayerTouchMovement_RB : MonoBehaviour
             rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
             anim.SetFloat("Locomotion", 0f);
         }
-
-        CheckAirState();
     }
 
     private void HandleStrafing(Vector2 input)
@@ -231,7 +229,6 @@ public class PlayerTouchMovement_RB : MonoBehaviour
            StartTurn("Turn180");
        } 
     }
-        
     
 
     private void StartTurn(string triggerName)
@@ -298,6 +295,15 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     private void StopMovement()
     {
         rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+    }
+    #endregion
+    
+    #region Weapon
+
+    public bool WeaponEquipped
+    {
+        get => weaponEquipped;
+        set => weaponEquipped = value;
     }
     #endregion
 }

@@ -44,6 +44,13 @@ public class Player : MonoBehaviour
         playerHasDied -= HandlePlayerDeath;
     }
 
+    private void Start()
+    {
+        PUAnim = FindObjectOfType<Animation>();
+        pauseButton = GameObject.FindWithTag("Pause");
+    }
+    
+    
     //Add PickUp
     //Add Draw Weapon
     //Add Ranged Weapon
@@ -52,12 +59,6 @@ public class Player : MonoBehaviour
 
     //Find and add enemies. Find Enemy manager Object. Called By a trigger. On Exit the Fight area the list clears
     //Populate Buttons with correct UI and rotation.
-
-    private void Start()
-    {
-        PUAnim = FindObjectOfType<Animation>();
-        pauseButton = GameObject.FindWithTag("Pause");
-    }
 
     // Positions the Enemy UI object at a specified angle relative to the center UI object.
     public void PositionEnemyUIAtAngle(float angle)

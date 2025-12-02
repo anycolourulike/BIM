@@ -3,16 +3,19 @@ using UnityEngine.InputSystem;
 
 public class Fighter : MonoBehaviour
 {
-    public enum WeaponType { Melee, Ranged }
+    public enum WeaponType { Unarmed, Melee, Ranged }
     public enum Direction { Up, Down, Left, Right }
+    PlayerTouchMovement_RB  playerTouch;
 
     [Header("Animation & Weapon")]
     public Animator anim;
     public WeaponType currentWeapon = WeaponType.Melee;
 
     [Header("Animator Layers")]
+    public int unarmedLayer = 0;
+    public int swordMovementLayer = 1;
     public int swordAttackLayer = 2;
-    public int defendLayer = 3;
+    public int swordDefendLayer = 3;
 
     [Header("Combat State")]
     public bool isEnemy;
@@ -60,11 +63,16 @@ public class Fighter : MonoBehaviour
 
     private void Awake()
     {
-        controls = new PlayerControls();
-        directionActions[0] = controls.Player.AttackUp;
-        directionActions[1] = controls.Player.AttackDown;
-        directionActions[2] = controls.Player.AttackLeft;
-        directionActions[3] = controls.Player.AttackRight;
+        if (isEnemy = false)
+        {
+            controls = new PlayerControls();
+            directionActions[0] = controls.Player.AttackUp;
+            directionActions[1] = controls.Player.AttackDown;
+            directionActions[2] = controls.Player.AttackLeft;
+            directionActions[3] = controls.Player.AttackRight;
+            controls.Player.Equip.performed += ctx => ToggleEquip();
+            playerTouch = GetComponent<PlayerTouchMovement_RB>();
+        }
 
         for (int i = 0; i < 4; i++)
         {
@@ -174,7 +182,7 @@ public class Fighter : MonoBehaviour
 
         anim?.SetBool(DefendHash, true);
         anim?.SetInteger(DefendDirHash, i);
-        SetLayerWeight(defendLayer, 1f);
+        SetLayerWeight(swordDefendLayer, 1f);
     }
 
     private void EndDefend(Direction dir)
@@ -188,7 +196,7 @@ public class Fighter : MonoBehaviour
         if (!anyDefending)
         {
             anim?.SetBool(DefendHash, false);
-            SetLayerWeight(defendLayer, 0f);
+            SetLayerWeight(swordDefendLayer, 0f);
         }
     }
 
@@ -259,8 +267,26 @@ public class Fighter : MonoBehaviour
     public void SelectTarget(int index) { if (index >= 0 && index < potentialTargets.Length) selectedTargetIndex = index; }
     public void ToggleEquip()
     {
-        currentWeapon = (currentWeapon == WeaponType.Melee) ? WeaponType.Ranged : WeaponType.Melee;
-        anim?.SetTrigger(EquipHash);
+        // If currently unarmed → equip sword
+        if (currentWeapon == WeaponType.Unarmed)
+        {
+            currentWeapon = WeaponType.Melee;
+            playerTouch.WeaponEquipped = true;
+            // Activate the sword layer
+            SetLayerWeight(swordAttackLayer, 1f);
+
+            anim?.SetTrigger(EquipHash);
+        }
+        // If currently armed → return to unarmed
+        else
+        {
+            currentWeapon = WeaponType.Unarmed;
+
+            // Disable the sword layer
+            SetLayerWeight(swordAttackLayer, 0f);
+
+            anim?.SetTrigger(EquipHash);
+        }
     }
     #endregion
 
