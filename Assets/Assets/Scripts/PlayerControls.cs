@@ -102,180 +102,54 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Pause"",
-                    ""type"": ""Button"",
-                    ""id"": ""17b410d6-76d3-439d-bfe5-31f51cd25544"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""OpenInv"",
-                    ""type"": ""Button"",
-                    ""id"": ""ec15d66a-fb12-49ed-a93e-bd70fe23b1dd"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Jump"",
-                    ""type"": ""Button"",
-                    ""id"": ""929b64a4-f423-4bb5-9f18-75b2a0721ac4"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Equip"",
                     ""type"": ""Button"",
-                    ""id"": ""4fbf43af-84cc-4d55-ad44-06a0fa5f88ee"",
+                    ""id"": ""5ee29c03-6202-4dc4-9e24-e12e01607b86"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""PickUp"",
+                    ""name"": ""Up"",
                     ""type"": ""Button"",
-                    ""id"": ""77a840c5-00ae-48b6-bf65-6d5c2cb80eb2"",
+                    ""id"": ""2f502499-67f2-4e89-a18c-4ce17284cc9d"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""AttackUp"",
+                    ""name"": ""Down"",
                     ""type"": ""Button"",
-                    ""id"": ""19739087-43a2-469e-8341-4c6019c2c437"",
+                    ""id"": ""8b730323-7820-4cb0-82d5-5a5b4242ecc6"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""AttackDown"",
+                    ""name"": ""Left"",
                     ""type"": ""Button"",
-                    ""id"": ""bee08311-39bd-4e2f-b7e0-e4f1ed51db35"",
+                    ""id"": ""a9630280-bfe8-4dde-b990-35698fd92b54"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""AttackRight"",
+                    ""name"": ""Right"",
                     ""type"": ""Button"",
-                    ""id"": ""c27315ba-2821-4f9f-a21b-bb9d489d731f"",
+                    ""id"": ""d0481ac0-0e1a-4ec7-9c53-21b157e6aed3"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""AttackLeft"",
+                    ""name"": ""Pause"",
                     ""type"": ""Button"",
-                    ""id"": ""120f44cd-9d2f-4046-9e94-b15f360379b9"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""DefendUp"",
-                    ""type"": ""Button"",
-                    ""id"": ""329e9f23-7f67-4534-9e9b-837d70fedcfd"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""DefendDown"",
-                    ""type"": ""Button"",
-                    ""id"": ""a3a83335-34ff-4f44-a380-6bfd332872ec"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""DefendRight"",
-                    ""type"": ""Button"",
-                    ""id"": ""8e14af60-ebf4-4f9a-b22a-ac07854cf1c5"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""DefendLeft"",
-                    ""type"": ""Button"",
-                    ""id"": ""6bf8611d-d061-4241-876e-6fd2b6165216"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""LookAtEnemy"",
-                    ""type"": ""Button"",
-                    ""id"": ""7593a6f0-dc73-42fd-b00e-a21e2a7ffc54"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""HideDialog"",
-                    ""type"": ""Button"",
-                    ""id"": ""cda5c1ac-5799-42c9-81a6-2602a1200ce2"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""CloseMap"",
-                    ""type"": ""Button"",
-                    ""id"": ""6842a83e-5d37-4be6-b2a5-011552e0041f"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ResumeGame"",
-                    ""type"": ""Button"",
-                    ""id"": ""2c490c03-5798-4835-8f91-41e5b61d3502"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""WatchAd"",
-                    ""type"": ""Button"",
-                    ""id"": ""fa9fff5d-4033-4f91-abea-7898c3dbed4a"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Menu"",
-                    ""type"": ""Button"",
-                    ""id"": ""8095eaf2-611f-45a9-8094-9c824ab1ad11"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Quit"",
-                    ""type"": ""Button"",
-                    ""id"": ""712f5a68-4e40-4cbd-8501-b2676842302c"",
+                    ""id"": ""0410ab07-7126-4d05-a3fe-d204eac26016"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -296,18 +170,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""b965f741-a35a-41b3-90e3-e00dd98e8734"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Jump"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""60dbe96a-1d9c-4f83-94c2-35f3d63f40b4"",
+                    ""id"": ""ad12c7ca-81f9-4a01-8ee1-fe2f128a109d"",
                     ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
@@ -318,199 +181,56 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""906c2ae9-67cb-4672-bc80-722ba467aa01"",
+                    ""id"": ""5648b128-5a31-4014-b57d-ba1720a6eed2"",
                     ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""AttackUp"",
+                    ""action"": ""Up"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""81c44180-98f4-4bcc-b797-c224a152d089"",
+                    ""id"": ""d8632d9d-73e9-4566-8e37-dab0a71ad359"",
                     ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""AttackDown"",
+                    ""action"": ""Down"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""6e48c355-7ba0-4f38-9769-7bbdb2782f73"",
+                    ""id"": ""116fee48-d9fc-4c2e-b1b5-e841f59cb360"",
                     ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""AttackLeft"",
+                    ""action"": ""Left"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""5bf2b21c-77f4-4c45-92cd-78d1f0e913c6"",
+                    ""id"": ""a7d40a3d-c5e1-4e58-beef-83fe0a142be2"",
                     ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""AttackRight"",
+                    ""action"": ""Right"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""6a47b02b-43ff-4acc-8703-d70e0a318e8d"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""PickUp"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""4e57d1dd-f30e-4888-880a-562efa5006fa"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""OpenInv"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""d4374e5e-d5b6-4f86-ad41-c1bbb5d55e4f"",
+                    ""id"": ""a7b31413-b0ec-4ca8-ae84-2ef4eac998ed"",
                     ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Pause"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""f1f9fe09-d002-4746-bd83-c863aafeae84"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""DefendUp"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""cfa24e14-2e3a-4da8-a5d5-654b856305a5"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""DefendDown"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""2939e2ce-a208-47a7-8ff1-4e4affead6aa"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""DefendRight"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""15dca980-cf47-4d29-9bb9-14c74e5fd38a"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""DefendLeft"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""7d5c116a-4dc1-4610-bada-b97f9c744d30"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""LookAtEnemy"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""9e3118ac-6840-4356-b773-cd48ee1657ed"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""HideDialog"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""fadc3319-0765-4659-8213-9de8bd3824c5"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""CloseMap"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""2cb13d56-2214-45c5-a559-fd591e51a5a4"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ResumeGame"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""f0c5df6e-de1e-4aa3-a6ca-2924d2577744"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""WatchAd"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""36dd6b77-3fab-4eeb-acae-d7fa1415d534"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Menu"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""802b4c72-435b-44ec-849b-20188ab08875"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Quit"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -522,26 +242,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
-        m_Player_OpenInv = m_Player.FindAction("OpenInv", throwIfNotFound: true);
-        m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Equip = m_Player.FindAction("Equip", throwIfNotFound: true);
-        m_Player_PickUp = m_Player.FindAction("PickUp", throwIfNotFound: true);
-        m_Player_AttackUp = m_Player.FindAction("AttackUp", throwIfNotFound: true);
-        m_Player_AttackDown = m_Player.FindAction("AttackDown", throwIfNotFound: true);
-        m_Player_AttackRight = m_Player.FindAction("AttackRight", throwIfNotFound: true);
-        m_Player_AttackLeft = m_Player.FindAction("AttackLeft", throwIfNotFound: true);
-        m_Player_DefendUp = m_Player.FindAction("DefendUp", throwIfNotFound: true);
-        m_Player_DefendDown = m_Player.FindAction("DefendDown", throwIfNotFound: true);
-        m_Player_DefendRight = m_Player.FindAction("DefendRight", throwIfNotFound: true);
-        m_Player_DefendLeft = m_Player.FindAction("DefendLeft", throwIfNotFound: true);
-        m_Player_LookAtEnemy = m_Player.FindAction("LookAtEnemy", throwIfNotFound: true);
-        m_Player_HideDialog = m_Player.FindAction("HideDialog", throwIfNotFound: true);
-        m_Player_CloseMap = m_Player.FindAction("CloseMap", throwIfNotFound: true);
-        m_Player_ResumeGame = m_Player.FindAction("ResumeGame", throwIfNotFound: true);
-        m_Player_WatchAd = m_Player.FindAction("WatchAd", throwIfNotFound: true);
-        m_Player_Menu = m_Player.FindAction("Menu", throwIfNotFound: true);
-        m_Player_Quit = m_Player.FindAction("Quit", throwIfNotFound: true);
+        m_Player_Up = m_Player.FindAction("Up", throwIfNotFound: true);
+        m_Player_Down = m_Player.FindAction("Down", throwIfNotFound: true);
+        m_Player_Left = m_Player.FindAction("Left", throwIfNotFound: true);
+        m_Player_Right = m_Player.FindAction("Right", throwIfNotFound: true);
+        m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -623,26 +329,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
-    private readonly InputAction m_Player_Pause;
-    private readonly InputAction m_Player_OpenInv;
-    private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Equip;
-    private readonly InputAction m_Player_PickUp;
-    private readonly InputAction m_Player_AttackUp;
-    private readonly InputAction m_Player_AttackDown;
-    private readonly InputAction m_Player_AttackRight;
-    private readonly InputAction m_Player_AttackLeft;
-    private readonly InputAction m_Player_DefendUp;
-    private readonly InputAction m_Player_DefendDown;
-    private readonly InputAction m_Player_DefendRight;
-    private readonly InputAction m_Player_DefendLeft;
-    private readonly InputAction m_Player_LookAtEnemy;
-    private readonly InputAction m_Player_HideDialog;
-    private readonly InputAction m_Player_CloseMap;
-    private readonly InputAction m_Player_ResumeGame;
-    private readonly InputAction m_Player_WatchAd;
-    private readonly InputAction m_Player_Menu;
-    private readonly InputAction m_Player_Quit;
+    private readonly InputAction m_Player_Up;
+    private readonly InputAction m_Player_Down;
+    private readonly InputAction m_Player_Left;
+    private readonly InputAction m_Player_Right;
+    private readonly InputAction m_Player_Pause;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -659,85 +351,29 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Move => m_Wrapper.m_Player_Move;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Pause".
-        /// </summary>
-        public InputAction @Pause => m_Wrapper.m_Player_Pause;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/OpenInv".
-        /// </summary>
-        public InputAction @OpenInv => m_Wrapper.m_Player_OpenInv;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/Jump".
-        /// </summary>
-        public InputAction @Jump => m_Wrapper.m_Player_Jump;
-        /// <summary>
         /// Provides access to the underlying input action "Player/Equip".
         /// </summary>
         public InputAction @Equip => m_Wrapper.m_Player_Equip;
         /// <summary>
-        /// Provides access to the underlying input action "Player/PickUp".
+        /// Provides access to the underlying input action "Player/Up".
         /// </summary>
-        public InputAction @PickUp => m_Wrapper.m_Player_PickUp;
+        public InputAction @Up => m_Wrapper.m_Player_Up;
         /// <summary>
-        /// Provides access to the underlying input action "Player/AttackUp".
+        /// Provides access to the underlying input action "Player/Down".
         /// </summary>
-        public InputAction @AttackUp => m_Wrapper.m_Player_AttackUp;
+        public InputAction @Down => m_Wrapper.m_Player_Down;
         /// <summary>
-        /// Provides access to the underlying input action "Player/AttackDown".
+        /// Provides access to the underlying input action "Player/Left".
         /// </summary>
-        public InputAction @AttackDown => m_Wrapper.m_Player_AttackDown;
+        public InputAction @Left => m_Wrapper.m_Player_Left;
         /// <summary>
-        /// Provides access to the underlying input action "Player/AttackRight".
+        /// Provides access to the underlying input action "Player/Right".
         /// </summary>
-        public InputAction @AttackRight => m_Wrapper.m_Player_AttackRight;
+        public InputAction @Right => m_Wrapper.m_Player_Right;
         /// <summary>
-        /// Provides access to the underlying input action "Player/AttackLeft".
+        /// Provides access to the underlying input action "Player/Pause".
         /// </summary>
-        public InputAction @AttackLeft => m_Wrapper.m_Player_AttackLeft;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/DefendUp".
-        /// </summary>
-        public InputAction @DefendUp => m_Wrapper.m_Player_DefendUp;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/DefendDown".
-        /// </summary>
-        public InputAction @DefendDown => m_Wrapper.m_Player_DefendDown;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/DefendRight".
-        /// </summary>
-        public InputAction @DefendRight => m_Wrapper.m_Player_DefendRight;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/DefendLeft".
-        /// </summary>
-        public InputAction @DefendLeft => m_Wrapper.m_Player_DefendLeft;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/LookAtEnemy".
-        /// </summary>
-        public InputAction @LookAtEnemy => m_Wrapper.m_Player_LookAtEnemy;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/HideDialog".
-        /// </summary>
-        public InputAction @HideDialog => m_Wrapper.m_Player_HideDialog;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/CloseMap".
-        /// </summary>
-        public InputAction @CloseMap => m_Wrapper.m_Player_CloseMap;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ResumeGame".
-        /// </summary>
-        public InputAction @ResumeGame => m_Wrapper.m_Player_ResumeGame;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/WatchAd".
-        /// </summary>
-        public InputAction @WatchAd => m_Wrapper.m_Player_WatchAd;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/Menu".
-        /// </summary>
-        public InputAction @Menu => m_Wrapper.m_Player_Menu;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/Quit".
-        /// </summary>
-        public InputAction @Quit => m_Wrapper.m_Player_Quit;
+        public InputAction @Pause => m_Wrapper.m_Player_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -767,66 +403,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @Pause.started += instance.OnPause;
-            @Pause.performed += instance.OnPause;
-            @Pause.canceled += instance.OnPause;
-            @OpenInv.started += instance.OnOpenInv;
-            @OpenInv.performed += instance.OnOpenInv;
-            @OpenInv.canceled += instance.OnOpenInv;
-            @Jump.started += instance.OnJump;
-            @Jump.performed += instance.OnJump;
-            @Jump.canceled += instance.OnJump;
             @Equip.started += instance.OnEquip;
             @Equip.performed += instance.OnEquip;
             @Equip.canceled += instance.OnEquip;
-            @PickUp.started += instance.OnPickUp;
-            @PickUp.performed += instance.OnPickUp;
-            @PickUp.canceled += instance.OnPickUp;
-            @AttackUp.started += instance.OnAttackUp;
-            @AttackUp.performed += instance.OnAttackUp;
-            @AttackUp.canceled += instance.OnAttackUp;
-            @AttackDown.started += instance.OnAttackDown;
-            @AttackDown.performed += instance.OnAttackDown;
-            @AttackDown.canceled += instance.OnAttackDown;
-            @AttackRight.started += instance.OnAttackRight;
-            @AttackRight.performed += instance.OnAttackRight;
-            @AttackRight.canceled += instance.OnAttackRight;
-            @AttackLeft.started += instance.OnAttackLeft;
-            @AttackLeft.performed += instance.OnAttackLeft;
-            @AttackLeft.canceled += instance.OnAttackLeft;
-            @DefendUp.started += instance.OnDefendUp;
-            @DefendUp.performed += instance.OnDefendUp;
-            @DefendUp.canceled += instance.OnDefendUp;
-            @DefendDown.started += instance.OnDefendDown;
-            @DefendDown.performed += instance.OnDefendDown;
-            @DefendDown.canceled += instance.OnDefendDown;
-            @DefendRight.started += instance.OnDefendRight;
-            @DefendRight.performed += instance.OnDefendRight;
-            @DefendRight.canceled += instance.OnDefendRight;
-            @DefendLeft.started += instance.OnDefendLeft;
-            @DefendLeft.performed += instance.OnDefendLeft;
-            @DefendLeft.canceled += instance.OnDefendLeft;
-            @LookAtEnemy.started += instance.OnLookAtEnemy;
-            @LookAtEnemy.performed += instance.OnLookAtEnemy;
-            @LookAtEnemy.canceled += instance.OnLookAtEnemy;
-            @HideDialog.started += instance.OnHideDialog;
-            @HideDialog.performed += instance.OnHideDialog;
-            @HideDialog.canceled += instance.OnHideDialog;
-            @CloseMap.started += instance.OnCloseMap;
-            @CloseMap.performed += instance.OnCloseMap;
-            @CloseMap.canceled += instance.OnCloseMap;
-            @ResumeGame.started += instance.OnResumeGame;
-            @ResumeGame.performed += instance.OnResumeGame;
-            @ResumeGame.canceled += instance.OnResumeGame;
-            @WatchAd.started += instance.OnWatchAd;
-            @WatchAd.performed += instance.OnWatchAd;
-            @WatchAd.canceled += instance.OnWatchAd;
-            @Menu.started += instance.OnMenu;
-            @Menu.performed += instance.OnMenu;
-            @Menu.canceled += instance.OnMenu;
-            @Quit.started += instance.OnQuit;
-            @Quit.performed += instance.OnQuit;
-            @Quit.canceled += instance.OnQuit;
+            @Up.started += instance.OnUp;
+            @Up.performed += instance.OnUp;
+            @Up.canceled += instance.OnUp;
+            @Down.started += instance.OnDown;
+            @Down.performed += instance.OnDown;
+            @Down.canceled += instance.OnDown;
+            @Left.started += instance.OnLeft;
+            @Left.performed += instance.OnLeft;
+            @Left.canceled += instance.OnLeft;
+            @Right.started += instance.OnRight;
+            @Right.performed += instance.OnRight;
+            @Right.canceled += instance.OnRight;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -841,66 +435,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @Pause.started -= instance.OnPause;
-            @Pause.performed -= instance.OnPause;
-            @Pause.canceled -= instance.OnPause;
-            @OpenInv.started -= instance.OnOpenInv;
-            @OpenInv.performed -= instance.OnOpenInv;
-            @OpenInv.canceled -= instance.OnOpenInv;
-            @Jump.started -= instance.OnJump;
-            @Jump.performed -= instance.OnJump;
-            @Jump.canceled -= instance.OnJump;
             @Equip.started -= instance.OnEquip;
             @Equip.performed -= instance.OnEquip;
             @Equip.canceled -= instance.OnEquip;
-            @PickUp.started -= instance.OnPickUp;
-            @PickUp.performed -= instance.OnPickUp;
-            @PickUp.canceled -= instance.OnPickUp;
-            @AttackUp.started -= instance.OnAttackUp;
-            @AttackUp.performed -= instance.OnAttackUp;
-            @AttackUp.canceled -= instance.OnAttackUp;
-            @AttackDown.started -= instance.OnAttackDown;
-            @AttackDown.performed -= instance.OnAttackDown;
-            @AttackDown.canceled -= instance.OnAttackDown;
-            @AttackRight.started -= instance.OnAttackRight;
-            @AttackRight.performed -= instance.OnAttackRight;
-            @AttackRight.canceled -= instance.OnAttackRight;
-            @AttackLeft.started -= instance.OnAttackLeft;
-            @AttackLeft.performed -= instance.OnAttackLeft;
-            @AttackLeft.canceled -= instance.OnAttackLeft;
-            @DefendUp.started -= instance.OnDefendUp;
-            @DefendUp.performed -= instance.OnDefendUp;
-            @DefendUp.canceled -= instance.OnDefendUp;
-            @DefendDown.started -= instance.OnDefendDown;
-            @DefendDown.performed -= instance.OnDefendDown;
-            @DefendDown.canceled -= instance.OnDefendDown;
-            @DefendRight.started -= instance.OnDefendRight;
-            @DefendRight.performed -= instance.OnDefendRight;
-            @DefendRight.canceled -= instance.OnDefendRight;
-            @DefendLeft.started -= instance.OnDefendLeft;
-            @DefendLeft.performed -= instance.OnDefendLeft;
-            @DefendLeft.canceled -= instance.OnDefendLeft;
-            @LookAtEnemy.started -= instance.OnLookAtEnemy;
-            @LookAtEnemy.performed -= instance.OnLookAtEnemy;
-            @LookAtEnemy.canceled -= instance.OnLookAtEnemy;
-            @HideDialog.started -= instance.OnHideDialog;
-            @HideDialog.performed -= instance.OnHideDialog;
-            @HideDialog.canceled -= instance.OnHideDialog;
-            @CloseMap.started -= instance.OnCloseMap;
-            @CloseMap.performed -= instance.OnCloseMap;
-            @CloseMap.canceled -= instance.OnCloseMap;
-            @ResumeGame.started -= instance.OnResumeGame;
-            @ResumeGame.performed -= instance.OnResumeGame;
-            @ResumeGame.canceled -= instance.OnResumeGame;
-            @WatchAd.started -= instance.OnWatchAd;
-            @WatchAd.performed -= instance.OnWatchAd;
-            @WatchAd.canceled -= instance.OnWatchAd;
-            @Menu.started -= instance.OnMenu;
-            @Menu.performed -= instance.OnMenu;
-            @Menu.canceled -= instance.OnMenu;
-            @Quit.started -= instance.OnQuit;
-            @Quit.performed -= instance.OnQuit;
-            @Quit.canceled -= instance.OnQuit;
+            @Up.started -= instance.OnUp;
+            @Up.performed -= instance.OnUp;
+            @Up.canceled -= instance.OnUp;
+            @Down.started -= instance.OnDown;
+            @Down.performed -= instance.OnDown;
+            @Down.canceled -= instance.OnDown;
+            @Left.started -= instance.OnLeft;
+            @Left.performed -= instance.OnLeft;
+            @Left.canceled -= instance.OnLeft;
+            @Right.started -= instance.OnRight;
+            @Right.performed -= instance.OnRight;
+            @Right.canceled -= instance.OnRight;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
@@ -949,27 +501,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPause(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "OpenInv" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnOpenInv(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Jump" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnJump(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "Equip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -977,118 +508,39 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnEquip(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "PickUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Up" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPickUp(InputAction.CallbackContext context);
+        void OnUp(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "AttackUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Down" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnAttackUp(InputAction.CallbackContext context);
+        void OnDown(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "AttackDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Left" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnAttackDown(InputAction.CallbackContext context);
+        void OnLeft(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "AttackRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Right" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnAttackRight(InputAction.CallbackContext context);
+        void OnRight(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "AttackLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnAttackLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "DefendUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDefendUp(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "DefendDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDefendDown(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "DefendRight" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDefendRight(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "DefendLeft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDefendLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "LookAtEnemy" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnLookAtEnemy(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "HideDialog" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnHideDialog(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "CloseMap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnCloseMap(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "ResumeGame" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnResumeGame(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "WatchAd" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnWatchAd(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Menu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnMenu(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Quit" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnQuit(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
-
-    
 }

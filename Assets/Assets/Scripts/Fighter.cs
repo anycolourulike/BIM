@@ -1,11 +1,12 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Fighter : MonoBehaviour
 {
     public enum WeaponType { Unarmed, Melee, Ranged }
     public enum Direction { Up, Down, Left, Right }
-    PlayerTouchMovement_RB  playerTouch;
+
+    [Header("Player")]
+    [SerializeField] private PlayerTouchMovement_RB playerTouch;
 
     [Header("Animation & Weapon")]
     public Animator anim;
@@ -30,93 +31,69 @@ public class Fighter : MonoBehaviour
     public float staminaCostShoot = 25f;
 
     [Header("Timing")]
-    public float holdThreshold = 0.28f; // seconds to enter defend
+    public float holdThreshold = 0.28f;
     public float parryWindow = 0.2f;
 
     [Header("Targeting")]
     public Transform[] potentialTargets = new Transform[4];
     public int selectedTargetIndex = 0;
-    public Transform target => (selectedTargetIndex >= 0 && selectedTargetIndex < potentialTargets.Length) ? potentialTargets[selectedTargetIndex] : null;
+    public Transform target =>
+        (selectedTargetIndex >= 0 && selectedTargetIndex < potentialTargets.Length)
+        ? potentialTargets[selectedTargetIndex]
+        : null;
 
     [Header("Projectile")]
     public GameObject projectilePrefab;
     public float projectileSpeed = 18f;
 
-    // Input System
-    private PlayerControls controls;
-    private InputAction[] directionActions = new InputAction[4];
+    // State names for animator.Play
+    private readonly string[] attackStates = { "Up", "Down", "Left", "Right" };
+    private readonly string[] defendStates = { "Up", "Down", "Left", "Right" };
 
-    // Input state
     private struct DirectionState
     {
         public bool pressed;
         public float pressTime;
         public bool defending;
     }
+
     private DirectionState[] directions = new DirectionState[4];
-
-    // Animator hashes
-    private static readonly int AttackDirHash = Animator.StringToHash("AttackDirection");
-    private static readonly int DefendDirHash = Animator.StringToHash("DefendDirection");
-    private static readonly int DefendHash = Animator.StringToHash("Defend");
-    private static readonly int EquipHash = Animator.StringToHash("Equip");
-
-    private void Awake()
-    {
-        if (isEnemy = false)
-        {
-            controls = new PlayerControls();
-            directionActions[0] = controls.Player.AttackUp;
-            directionActions[1] = controls.Player.AttackDown;
-            directionActions[2] = controls.Player.AttackLeft;
-            directionActions[3] = controls.Player.AttackRight;
-            controls.Player.Equip.performed += ctx => ToggleEquip();
-            playerTouch = GetComponent<PlayerTouchMovement_RB>();
-        }
-
-        for (int i = 0; i < 4; i++)
-        {
-            int idx = i;
-            directionActions[i].started += ctx => OnPress(idx);
-            directionActions[i].canceled += ctx => OnRelease(idx);
-        }
-    }
-
-    private void OnEnable() => controls.Enable();
-    private void OnDisable() => controls.Disable();
 
     private void Update()
     {
-        // Stamina regen
+        // Regen stamina
         if (stamina < maxStamina)
             stamina = Mathf.Clamp(stamina + staminaRegenRate * Time.deltaTime, 0f, maxStamina);
 
-        // Check hold -> defend
+        // Hold detection
         if (canAct)
         {
             for (int i = 0; i < 4; i++)
             {
                 if (directions[i].pressed && !directions[i].defending)
                 {
-                    if (Time.time - directions[i].pressTime >= holdThreshold && stamina >= staminaCostParry)
+                    if (Time.time - directions[i].pressTime >= holdThreshold &&
+                        stamina >= staminaCostParry)
+                    {
                         StartDefend((Direction)i);
+                    }
                 }
             }
         }
 
-        // Enemy AI (optional)
         if (isEnemy) EnemyTick();
     }
 
     #region Input
-    private void OnPress(int dir)
+    public void PressDirection(int dir)
     {
         if (!canAct) return;
+
         directions[dir].pressed = true;
         directions[dir].pressTime = Time.time;
     }
 
-    private void OnRelease(int dir)
+    public void ReleaseDirection(int dir)
     {
         if (!directions[dir].pressed) return;
 
@@ -144,45 +121,57 @@ public class Fighter : MonoBehaviour
     #endregion
 
     #region Attack / Defend
-    private void TryAttack(Direction dir)
+    
+    public void ToggleEquip()
     {
         if (!canAct) return;
 
-        if (currentWeapon == WeaponType.Ranged)
+        if (currentWeapon == WeaponType.Unarmed)
         {
-            if (stamina < staminaCostShoot) return;
-            stamina -= staminaCostShoot;
-            if (target != null) FireProjectile(target.position);
-            PlayAttackAnimation(dir);
+            // Equip melee weapon
+            currentWeapon = WeaponType.Melee;
+            playerTouch.WeaponEquipped = true;
+
+            // Enable attack layer so sword animations are visible
+            SetLayerWeight(swordAttackLayer, 1f);
+
+            // Play equip animation directly
+            anim.SetTrigger("Draw Sword");
         }
         else
         {
-            if (stamina < staminaCostAttack) return;
-            stamina -= staminaCostAttack;
+            // Unequip weapon
+            currentWeapon = WeaponType.Unarmed;
+            playerTouch.WeaponEquipped = false;
 
-            if (target != null)
-            {
-                Fighter tgt = target.GetComponent<Fighter>();
-                if (tgt != null && tgt.TryParry(dir, parryWindow, Time.time))
-                    OnAttackParried(tgt, dir);
-                else
-                    OnAttackHit(tgt, dir);
-            }
-            else PlayAttackAnimation(dir);
+            // Disable sword attack layer
+            SetLayerWeight(swordAttackLayer, 0f);
+
+            // Play unequip animation directly
+            anim.SetTrigger("Sheath Sword");
         }
+    }
+
+
+    public void TryAttack(Direction dir)
+    {
+        if (!canAct) return;
+        if (stamina < staminaCostAttack) return;
+
+        stamina -= staminaCostAttack;
+
+        PlayAttackAnimation(dir);
     }
 
     private void StartDefend(Direction dir)
     {
-        int i = (int)dir;
         if (!canAct || stamina < staminaCostParry) return;
 
+        int i = (int)dir;
         directions[i].defending = true;
         stamina -= staminaCostParry;
 
-        anim?.SetBool(DefendHash, true);
-        anim?.SetInteger(DefendDirHash, i);
-        SetLayerWeight(swordDefendLayer, 1f);
+        PlayDefendAnimation(dir);
     }
 
     private void EndDefend(Direction dir)
@@ -190,104 +179,62 @@ public class Fighter : MonoBehaviour
         int i = (int)dir;
         directions[i].defending = false;
 
+        // Check if any other direction is still defending
         bool anyDefending = false;
-        for (int j = 0; j < 4; j++) if (directions[j].defending) { anyDefending = true; break; }
+        for (int j = 0; j < 4; j++)
+        {
+            if (directions[j].defending)
+            {
+                anyDefending = true;
+                break;
+            }
+        }
 
         if (!anyDefending)
         {
-            anim?.SetBool(DefendHash, false);
             SetLayerWeight(swordDefendLayer, 0f);
         }
-    }
-
-    public bool TryParry(Direction attackDir, float window, float attackTime)
-    {
-        int i = (int)attackDir;
-        if (!directions[i].defending) return false;
-
-        float dt = attackTime - directions[i].pressTime;
-        if (dt >= 0f && dt <= window)
-        {
-            OnSuccessfulParry(attackDir);
-            return true;
-        }
-        return false;
     }
     #endregion
 
     #region Animations
+
     private void PlayAttackAnimation(Direction dir)
     {
         if (anim == null) return;
-        anim.SetInteger(AttackDirHash, (int)dir);
-        anim.SetTrigger("Attack");
 
-        float duration = anim.GetCurrentAnimatorStateInfo(swordAttackLayer).length;
-        StartCoroutine(ActivateLayerTemporarily(swordAttackLayer, duration));
+        int index = (int)dir;
+
+        SetLayerWeight(swordAttackLayer, 1f);
+        anim.Play(attackStates[index], swordAttackLayer, 0f);
+
+        StartCoroutine(ResetAttackLayer());
     }
 
-    private System.Collections.IEnumerator ActivateLayerTemporarily(int layer, float duration)
+    private System.Collections.IEnumerator ResetAttackLayer()
     {
-        SetLayerWeight(layer, 1f);
-        yield return new WaitForSeconds(duration);
-        SetLayerWeight(layer, 0f);
+        yield return null; // allow 1 frame
+
+        float length =
+            anim.GetCurrentAnimatorStateInfo(swordAttackLayer).length;
+
+        yield return new WaitForSeconds(length);
+        SetLayerWeight(swordAttackLayer, 0f);
     }
 
-    private void SetLayerWeight(int layer, float weight) => anim?.SetLayerWeight(layer, weight);
-
-    private void OnAttackParried(Fighter defender, Direction dir)
+    private void PlayDefendAnimation(Direction dir)
     {
-        PlayAttackAnimation(dir);
-        stamina = Mathf.Max(0f, stamina - staminaCostAttack * 0.2f);
+        if (anim == null) return;
+
+        SetLayerWeight(swordDefendLayer, 1f);
+        anim.Play(defendStates[(int)dir], swordDefendLayer, 0f);
     }
 
-    private void OnAttackHit(Fighter defender, Direction dir) => PlayAttackAnimation(dir);
-
-    private void OnSuccessfulParry(Direction dir) => anim?.SetTrigger("ParrySuccess");
-    #endregion
-
-    #region Projectiles
-    private void FireProjectile(Vector3 targetPos)
+    private void SetLayerWeight(int layer, float weight)
     {
-        if (projectilePrefab == null) return;
-
-        GameObject proj = Instantiate(projectilePrefab, transform.position + Vector3.up, Quaternion.identity);
-        var p = proj.GetComponent<Projectile>();
-        if (p != null) p.Launch(targetPos);
-        else
-        {
-            var rb = proj.GetComponent<Rigidbody>();
-            if (rb != null) rb.velocity = (targetPos - proj.transform.position).normalized * projectileSpeed;
-        }
-        PlayAttackAnimation(Direction.Up); // optional: adjust direction
+        anim.SetLayerWeight(layer, weight);
     }
-    #endregion
 
-    #region Target & Equip
-    public void SelectTarget(int index) { if (index >= 0 && index < potentialTargets.Length) selectedTargetIndex = index; }
-    public void ToggleEquip()
-    {
-        // If currently unarmed → equip sword
-        if (currentWeapon == WeaponType.Unarmed)
-        {
-            currentWeapon = WeaponType.Melee;
-            playerTouch.WeaponEquipped = true;
-            // Activate the sword layer
-            SetLayerWeight(swordAttackLayer, 1f);
-
-            anim?.SetTrigger(EquipHash);
-        }
-        // If currently armed → return to unarmed
-        else
-        {
-            currentWeapon = WeaponType.Unarmed;
-
-            // Disable the sword layer
-            SetLayerWeight(swordAttackLayer, 0f);
-
-            anim?.SetTrigger(EquipHash);
-        }
-    }
     #endregion
 
     #region Enemy AI
@@ -300,7 +247,7 @@ public class Fighter : MonoBehaviour
         if (aiTimer <= 0f)
         {
             aiTimer = aiInterval;
-            if (canAct && target != null)
+            if (canAct)
             {
                 Direction dir = (Direction)Random.Range(0, 4);
                 TryAttack(dir);

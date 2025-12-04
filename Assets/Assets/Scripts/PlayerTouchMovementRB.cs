@@ -19,6 +19,9 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     public float jumpForce = 7f;
     public float groundCheckDistance = 0.2f;
     public LayerMask groundMask;
+    
+    [Header("Assigned by fighter Script")]
+    public Transform currentTarget;
 
     private Rigidbody rb;
     private PlayerControls controls;
@@ -55,7 +58,6 @@ public class PlayerTouchMovement_RB : MonoBehaviour
         controls.Player.Enable();
         controls.Player.Move.performed += OnMovePerformed;
         controls.Player.Move.canceled += OnMoveCanceled;
-        controls.Player.Jump.performed += OnJumpPerformed;
 
         ETouch.EnhancedTouchSupport.Enable();
         ETouch.Touch.onFingerDown += OnFingerDown;
@@ -70,7 +72,6 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     {
         controls.Player.Move.performed -= OnMovePerformed;
         controls.Player.Move.canceled -= OnMoveCanceled;
-        controls.Player.Jump.performed -= OnJumpPerformed;
         controls.Player.Disable();
 
         ETouch.Touch.onFingerDown -= OnFingerDown;
@@ -143,14 +144,24 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     {
         CheckAirState();
         Vector2 input = isMovementFingerActive ? movementAmount : moveInput;
+
+        if (weaponEquipped)
+        {
+            HandleStrafing(input, currentTarget); // only strafing in weapon mode
+            return; // skip rotation and normal movement
+        }
+
+        // Non-weapon mode: free movement with rotation
         Vector3 moveDir = GetWorldDirection(input);
-        HandleStrafing(input);
-        if (weaponEquipped) return;
-        if (moveDir.sqrMagnitude > 0.1f)
+
+        if (moveDir.sqrMagnitude > 0.01f)
         {
             RotateCharacter(moveDir);
+
+            // Apply movement manually if not using root motion, else remove rb.velocity
             Vector3 targetVelocity = moveDir * moveSpeed;
             rb.velocity = new Vector3(targetVelocity.x, rb.velocity.y, targetVelocity.z);
+
             anim.SetFloat("Locomotion", 1f);
         }
         else
@@ -160,25 +171,37 @@ public class PlayerTouchMovement_RB : MonoBehaviour
         }
     }
 
-    private void HandleStrafing(Vector2 input)
+
+    private void HandleStrafing(Vector2 input, Transform target)
     {
         if (!weaponEquipped) return;
 
-        Vector3 strafe = transform.forward * input.y + transform.right * input.x;
-        if (strafe.sqrMagnitude > 0.001f)
+        Vector3 moveDir;
+
+        if (target != null)
         {
-            Vector3 targetVelocity = strafe.normalized * moveSpeed;
+            Vector3 toTarget = (target.position - transform.position).normalized;
+            Vector3 right = Vector3.Cross(Vector3.up, toTarget);
+            moveDir = right * input.x + toTarget * input.y;
+        }
+        else
+        {
+            moveDir = transform.forward * input.y + transform.right * input.x;
+        }
+
+        if (moveDir.sqrMagnitude > 0.001f)
+        {
+            Vector3 targetVelocity = moveDir.normalized * moveSpeed;
             rb.velocity = new Vector3(targetVelocity.x, rb.velocity.y, targetVelocity.z);
+
             anim.SetFloat("StrafeX", input.x);
             anim.SetFloat("StrafeY", input.y);
-            anim.SetFloat("Locomotion", 1f);
         }
         else
         {
             rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
             anim.SetFloat("StrafeX", 0f);
             anim.SetFloat("StrafeY", 0f);
-            anim.SetFloat("Locomotion", 0f);
         }
     }
 

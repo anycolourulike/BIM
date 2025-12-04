@@ -40,19 +40,19 @@ public class Patrol : IState
             {
                 _timeSinceArrivedAtWaypoint = 0f;
                 _currentDwellDuration = Random.Range(0.5f, 3f);
-                _anim.SetFloat("locomotion", 0f);
+                _anim.SetFloat("Locomotion", 0f);
                 CycleWaypoint(); 
             }
             _nextPosition = GetCurrentWaypoint();
         }
         if(_timeSinceArrivedAtWaypoint > _currentDwellDuration)
         {
-            _anim.SetFloat("locomotion", 1f);
+            _anim.SetFloat("Locomotion", 1f);
             _mover.StartMoveAction(_nextPosition, _patrolSpeedFraction);
         }
         else
         {
-            _anim.SetFloat("locomotion", 0f);
+            _anim.SetFloat("Locomotion", 0f);
         }
     }  
  
