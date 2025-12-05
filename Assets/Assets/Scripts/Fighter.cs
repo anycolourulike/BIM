@@ -134,21 +134,20 @@ public class Fighter : MonoBehaviour
 
             // Enable attack layer so sword animations are visible
             SetLayerWeight(swordAttackLayer, 1f);
-
-            // Play equip animation directly
             anim.SetTrigger("Draw Sword");
         }
         else
         {
-            // Unequip weapon
-            currentWeapon = WeaponType.Unarmed;
-            playerTouch.WeaponEquipped = false;
-
-            // Disable sword attack layer
-            SetLayerWeight(swordAttackLayer, 0f);
 
             // Play unequip animation directly
             anim.SetTrigger("Sheath Sword");
+            
+            // Disable sword attack layer
+           // SetLayerWeight(swordAttackLayer, 0f);
+            
+            // Unequip weapon
+            currentWeapon = WeaponType.Unarmed;
+            playerTouch.WeaponEquipped = false;
         }
     }
 
@@ -204,11 +203,9 @@ public class Fighter : MonoBehaviour
         if (anim == null) return;
 
         int index = (int)dir;
+        anim.Play(attackStates[index]);
 
-        SetLayerWeight(swordAttackLayer, 1f);
-        anim.Play(attackStates[index], swordAttackLayer, 0f);
-
-        StartCoroutine(ResetAttackLayer());
+        //StartCoroutine(ResetAttackLayer());
     }
 
     private System.Collections.IEnumerator ResetAttackLayer()

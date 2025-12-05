@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -83,7 +84,7 @@ public class PlayerTouchMovement_RB : MonoBehaviour
             jumpButton.onClick.RemoveListener(TryJump);
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         HandleMovement();
         HandleTurning();
@@ -96,8 +97,7 @@ public class PlayerTouchMovement_RB : MonoBehaviour
 
     private void OnFingerDown(Finger finger)
     {
-        if (!isMovementFingerActive && finger.screenPosition.x < Screen.width * 0.5f)
-        {
+        if (!isMovementFingerActive && finger.screenPosition.x < Screen.width * 0.5f) {
             movementFinger = finger;
             isMovementFingerActive = true;
 
@@ -245,19 +245,6 @@ public class PlayerTouchMovement_RB : MonoBehaviour
 
        // Require a strong directional input
        if (input.magnitude < 0.5f) return;
-
-       // Backwards input = 180 turn
-       if (input.y < -0.6f)
-       {
-           StartTurn("Turn180");
-       } 
-    }
-    
-
-    private void StartTurn(string triggerName)
-    {
-        anim.SetTrigger(triggerName);
-        isTurning = true;
     }
     #endregion
 
@@ -281,16 +268,18 @@ public class PlayerTouchMovement_RB : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics.Raycast(transform.position + Vector3.up * 0.1f,
-                               Vector3.down,
-                               groundCheckDistance + 0.1f,
-                               groundMask);
+        CapsuleCollider col = GetComponent<CapsuleCollider>();
+        Vector3 start = col.bounds.center;
+        float radius = col.radius * 0.9f;
+        float distance = 0.2f;
+
+        return Physics.CheckSphere(start + Vector3.down * (col.height / 2 - radius + 0.05f), radius, groundMask);
     }
 
-    private System.Collections.IEnumerator ResetJump()
+    private IEnumerator ResetJump()
     {
-        yield return new WaitForSeconds(2.5f);
-        anim.ResetTrigger("JumpUnarmed");
+        while(!IsGrounded())
+        yield return null;
         isJumping = false;
     }
     #endregion
