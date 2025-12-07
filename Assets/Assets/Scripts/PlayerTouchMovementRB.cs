@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.UI;
 using ETouch = UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerTouchMovement_RB : MonoBehaviour
@@ -14,17 +15,21 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] float extraGravity = 200f;
 
     [Header("Jump Settings")]
+    private bool isJumping = false;
+    private bool jumpPressed = false;
     public Button jumpButton;
     public float jumpForce = 7f;
-    public float groundCheckDistance = 0.2f;
+    public float groundCheckDistance = 0.4f;
     public LayerMask groundMask;
     
     [Header("Assigned by fighter Script")]
     public Transform currentTarget;
 
     private Rigidbody rb;
+    private Fighter fighter;
     private PlayerControls controls;
     private Vector2 moveInput;
     private Finger movementFinger;
@@ -33,14 +38,15 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     private Canvas rootCanvas;
     private Camera mainCam;
     private Animator anim;
-    private bool isJumping = false;
+    
     private bool isTurning = false;
     private bool weaponEquipped = false;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        fighter = GetComponent<Fighter>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         controls = new PlayerControls();
@@ -88,6 +94,8 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     {
         HandleMovement();
         HandleTurning();
+        if (!IsGrounded())
+            rb.AddForce(Vector3.down * extraGravity, ForceMode.Acceleration);
     }
 
     #region Input Handlers
@@ -97,6 +105,8 @@ public class PlayerTouchMovement_RB : MonoBehaviour
 
     private void OnFingerDown(Finger finger)
     {
+        if (EventSystem.current.IsPointerOverGameObject(finger.index))
+            return;
         if (!isMovementFingerActive && finger.screenPosition.x < Screen.width * 0.5f) {
             movementFinger = finger;
             isMovementFingerActive = true;
@@ -129,6 +139,8 @@ public class PlayerTouchMovement_RB : MonoBehaviour
 
     private void OnFingerMove(Finger finger)
     {
+        if (EventSystem.current.IsPointerOverGameObject(finger.index))
+            return;
         if (!isMovementFingerActive || finger != movementFinger || joystick == null) return;
 
         float maxRadius = joystick.RectTransform.sizeDelta.x * 0.5f;
@@ -170,7 +182,6 @@ public class PlayerTouchMovement_RB : MonoBehaviour
             anim.SetFloat("Locomotion", 0f);
         }
     }
-
 
     private void HandleStrafing(Vector2 input, Transform target)
     {
@@ -249,15 +260,40 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     #endregion
 
     #region Jump & Air
+
+    private void OnJumpPressed()
+    {
+        //jumpPressed = true;   // button down
+        TryJump(); 
+    }
+
+    private void OnJumpReleased()
+    {
+        //jumpPressed = false; // allow next jump
+    }
+    
     public void TryJump()
     {
-        if (IsGrounded() && !isJumping)
-        {
-            isJumping = true;
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
-            anim.SetTrigger("JumpUnarmed");
-            StartCoroutine(ResetJump());
-        }
+        if (!IsGrounded() || isJumping) return;
+
+        isJumping = true;
+        //rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        anim.SetBool("JumpUnarmed", true);
+        StartCoroutine(ResetJump());
+    }
+    
+    private IEnumerator ResetJump()
+    {
+      // Wait until grounded
+      while (!IsGrounded())
+          yield return null;
+
+      // Small buffer to avoid edge jitter
+      yield return new WaitForSeconds(0.05f);
+
+      // Fully reset jump state
+      isJumping = false;
+      anim.SetBool("JumpUnarmed", false);
     }
 
     private void CheckAirState()
@@ -269,19 +305,66 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     private bool IsGrounded()
     {
         CapsuleCollider col = GetComponent<CapsuleCollider>();
-        Vector3 start = col.bounds.center;
-        float radius = col.radius * 0.9f;
-        float distance = 0.2f;
+        if (col == null) return false;
 
-        return Physics.CheckSphere(start + Vector3.down * (col.height / 2 - radius + 0.05f), radius, groundMask);
+        // World-space center of the capsule
+        Vector3 worldCenter = transform.TransformPoint(col.center);
+
+        // Account for lossy scale on radius/height
+        float scaleY = transform.lossyScale.y;
+        float scaleX = Mathf.Max(transform.lossyScale.x, transform.lossyScale.z);
+        float radius = col.radius * scaleX;
+        float height = Mathf.Max(col.height * scaleY, radius * 2f);
+
+        // half-height of the cylindrical part (distance from center to sphere centers)
+        float halfHeight = Mathf.Max(0f, (height / 2f) - radius);
+
+        // Distance to check: from center down to bottom sphere + extra
+        float checkDistance = halfHeight + groundCheckDistance;
+
+        // 1) SphereCast downward from the capsule center (good for slopes, moving ground)
+        if (Physics.SphereCast(worldCenter, radius * 0.9f, Vector3.down, out RaycastHit hit, checkDistance,
+                groundMask, QueryTriggerInteraction.Ignore))
+        {
+            return true;
+        }
+
+        // 2) Fallback: a small sphere near the feet (useful for edge cases)
+        Vector3 footPos = worldCenter - Vector3.up * halfHeight;
+        if (Physics.CheckSphere(footPos + Vector3.down * groundCheckDistance, radius * 0.75f, groundMask,
+                QueryTriggerInteraction.Ignore))
+        {
+            return true;
+        }
+
+        return false;
     }
-
-    private IEnumerator ResetJump()
+    
+    private void OnDrawGizmosSelected()
     {
-        while(!IsGrounded())
-        yield return null;
-        isJumping = false;
+        CapsuleCollider col = GetComponent<CapsuleCollider>();
+        if (col == null) return;
+
+        Vector3 worldCenter = transform.TransformPoint(col.center);
+        float scaleY = transform.lossyScale.y;
+        float scaleX = Mathf.Max(transform.lossyScale.x, transform.lossyScale.z);
+        float radius = col.radius * scaleX;
+        float height = Mathf.Max(col.height * scaleY, radius * 2f);
+        float halfHeight = Mathf.Max(0f, (height / 2f) - radius);
+        float checkDistance = halfHeight + groundCheckDistance;
+
+        // SphereCast gizmo (line + small sphere at hit-dist)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(worldCenter, worldCenter + Vector3.down * checkDistance);
+        Gizmos.DrawWireSphere(worldCenter, radius * 0.9f);
+
+        // Foot sphere gizmo
+        Vector3 footPos = worldCenter - Vector3.up * halfHeight;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(footPos + Vector3.down * groundCheckDistance, radius * 0.75f);
     }
+
+
     #endregion
 
     #region Utilities

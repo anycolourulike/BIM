@@ -30,7 +30,7 @@ public class RewardedAdsButton : MonoBehaviour
         Debug.Log("Loading the rewarded ad.");
 
         // create our request used to load the ad.
-        var adRequest = new AdRequest.Builder().Build();
+        var adRequest = new AdRequest();
 
         // send the request to load the ad.
         RewardedAd.Load(_adUnitId, adRequest,
