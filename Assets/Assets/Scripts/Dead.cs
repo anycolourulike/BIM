@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Dead : IState
 {
-    Mover _mover;
-    Fighter _fighter;
-    Health _health;
-    EnemyAI _enemyAI;
+    private readonly EnemyAI _enemyAI;
+    private readonly Mover _mover;
+    private readonly Fighter _fighter;
+    private readonly Health _health;
 
     public Dead(EnemyAI enemyAI, Fighter fighter, Mover mover, Health health)
     {
@@ -18,22 +16,44 @@ public class Dead : IState
     }
 
     public void OnEnter()
-    {     
-        
-
-    }
-
-    public void OnExit()
     {
-        
+        // Stop all movement and attacks immediately
+        if (_mover != null) _mover.CancelNav();
+        //if (_fighter != null) _fighter.Cancel();
+
+        // Play death animation
+        if (_enemyAI.Anim != null)
+        {
+            _enemyAI.Anim.SetTrigger("Death");
+        }
+
+        // Remove from attack coordination so others reassign roles correctly
+        EnemyAttackManager.Instance?.ReleaseSlot(_enemyAI);
+        EnemyAttackManager.Instance?.UnregisterEnemy(_enemyAI);
+
+        // disable collider to avoid blocking pathing
+        var boxCollider = _enemyAI.GetComponent<BoxCollider>();
+        if (boxCollider != null) boxCollider.enabled = false;
+        var sphereCollider = _enemyAI.GetComponent<SphereCollider>();
+        if (sphereCollider != null) sphereCollider.enabled = false;
+        _mover.enabled = false;
     }
 
     public void Tick()
     {
-       //Handle Player Ai Death UI / Lives / Saving 
-       //Handle Enemy Death
-       //Dropper
-       //LevellingUp
-       //Scoreboard
+        // Future:
+        // - Drop loot
+        // - Spawn XP orbs
+        // - Add score
+        // - Check player quest logic
+        // - Handle corpse cleanup
+        
+        // For now: corpse does nothing
+    }
+
+    public void OnExit()
+    {
+        // Dead state never exits, but required by interface.
     }
 }
+

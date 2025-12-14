@@ -63,7 +63,6 @@ public class PlayerTouchMovement : MonoBehaviour
         controls.Player.Enable();
         controls.Player.Move.performed += OnMovePerformed;
         controls.Player.Move.canceled += OnMoveCanceled;
-        controls.Player.Jump.performed += OnJumpPerformed;
 
         ETouch.EnhancedTouchSupport.Enable();
         ETouch.Touch.onFingerDown += OnFingerDown;
@@ -78,7 +77,6 @@ public class PlayerTouchMovement : MonoBehaviour
     {
         controls.Player.Move.performed -= OnMovePerformed;
         controls.Player.Move.canceled -= OnMoveCanceled;
-        controls.Player.Jump.performed -= OnJumpPerformed;
         controls.Player.Disable();
 
         ETouch.Touch.onFingerDown -= OnFingerDown;

@@ -7,10 +7,12 @@ public class CombatTarget : MonoBehaviour
 
     [Header("Melee Settings")]
     public float meleeSpeed = 3f;
+    public float meleeDistance = 3f;
 
     [Header("Ranged Settings")]
     public FieldOFView fieldOfView;
 
+    
     private Vector3 prevTargetPos;
     private Vector3 targetVelocity;
     private float targetSpeed;

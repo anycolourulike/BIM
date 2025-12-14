@@ -122,41 +122,49 @@ public class Player : MonoBehaviour
     public void HandlePlayerDeath()
     {
         this.gameObject.tag = "Respawn";
-        player.GetComponentInParent<MeshRenderer>().enabled = false;
+        player.GetComponentInChildren<MeshRenderer>().enabled = false;
         player.GetComponent<BoxCollider>().enabled = false;
-      
 
-        SaveManager.Instance.OnPlayerDeath();
-        PlayerLives playerlives;
-        playerlives = GameManager.Instance.playerLives;
-        var playerLivesLeft = playerlives.CurrentLives;
-        SaveManager.Instance.Save();
-        pauseButton.SetActive(false);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.OnPlayerDeath();
+            PlayerLives playerlives;
+            playerlives = GameManager.Instance.playerLives;
+            var playerLivesLeft = playerlives.CurrentLives;
+            SaveManager.Instance.Save();
+            pauseButton.SetActive(false);
 
-        if (playerLivesLeft == 0)
-        {
-            DialogUI.Instance
-             .SetTitle("Game Over")
-             .SetMessage("Puny Human!")
-             .OnClose(LevelManager.loadMenu)
-             .Show();
-        }
-        if (playerLivesLeft % 3 == 0)
-        {
-            DialogUI.Instance
-             .SetTitle("Ouch!")
-             .SetMessage("Poor Blaze!")
-             .OnClose(LevelManager.reloadLevel)
-             .Show();
+            if (playerLivesLeft == 0)
+            {
+                DialogUI.Instance
+                    .SetTitle("Game Over")
+                    .SetMessage("Puny Human!")
+                    .OnClose(LevelManager.loadMenu)
+                    .Show();
+            }
+            if (playerLivesLeft % 3 == 0)
+            {
+                DialogUI.Instance
+                    .SetTitle("Ouch!")
+                    .SetMessage("Poor Blaze!")
+                    .OnClose(LevelManager.reloadLevel)
+                    .Show();
+            }
+            else
+            {
+                DialogUI.Instance
+                    .SetTitle("You Died!")
+                    .SetMessage("One Life Lost!")
+                    .OnClose(LevelManager.reloadLevel)
+                    .Show();
+            }
         }
         else
         {
-            DialogUI.Instance
-             .SetTitle("You Died!")
-             .SetMessage("One Life Lost!")
-             .OnClose(LevelManager.reloadLevel)
-             .Show();
+            Debug.Log("Player" + " " + "Died");
         }
+       
+        
     }
 
 

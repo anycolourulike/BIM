@@ -3,103 +3,177 @@ using UnityEngine;
 
 public class EnemyAttackManager : MonoBehaviour
 {
-    public Transform player;
-    public List<CombatTarget> enemies;         // Max 4 enemies
-    public LayerMask obstacleMask;
+    public static EnemyAttackManager Instance;
 
-    [Header("Attack Distances")]
-    public float meleeDistance = 2f;
-    public float rangedDistance = 4f;
-    public float followUpOffset = 1.5f;
+    [Header("Scene")]
+    [SerializeField] public Transform player;
+    [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private UIManager uiManager;
 
-    [Header("Projectile Settings")]
-    public GameObject projectilePrefab;
-    public float projectileSpeed = 18.3f;
+    [Header("Distances")]
+    [SerializeField] public float meleeDistance = 2f;
+    [SerializeField] public float rangedDistance = 4f;
+    [SerializeField] private float followUpOffset = 1.5f;
 
-    [HideInInspector] public List<CombatTarget> primaryAttackers = new List<CombatTarget>();
-    [HideInInspector] public List<CombatTarget> secondaryAttackers = new List<CombatTarget>();
+    [Header("Enemy Groups")]
+    private readonly List<EnemyAI> allEnemies = new();
+    private readonly List<EnemyAI> primaryAttackers = new();
+    private readonly List<EnemyAI> secondaryAttackers = new();
+    private readonly List<EnemyAI> backupAttackers = new();
 
-    void Start()
+    public const int MAX_ATTACKERS = 2;
+
+    private void Awake()
     {
-        if (enemies.Count > 4)
-            enemies = enemies.GetRange(0, 4);
-
-        AssignRoles();
-        PositionEnemies();
+        if (Instance != null)
+        {
+            Destroy(this);
+            return;
+        }
+        Instance = this;
     }
 
-    void Update()
+    // -------------------------------------------------------
+    // Registration
+    // -------------------------------------------------------
+    public void RegisterEnemy(EnemyAI enemy)
     {
-        foreach (CombatTarget enemy in enemies)
+        if (!allEnemies.Contains(enemy))
+            allEnemies.Add(enemy);
+    }
+
+    public void UnregisterEnemy(EnemyAI enemy)
+    {
+        allEnemies.Remove(enemy);
+        primaryAttackers.Remove(enemy);
+        secondaryAttackers.Remove(enemy);
+        backupAttackers.Remove(enemy);
+    }
+
+    // -------------------------------------------------------
+    // Role assignment
+    // -------------------------------------------------------
+    public void EvaluateRoles()
+    {
+        // Sort by score: highest attackers get priority
+        allEnemies.Sort((a, b) => b.ScoreForAttack().CompareTo(a.ScoreForAttack()));
+
+        primaryAttackers.Clear();
+        secondaryAttackers.Clear();
+        backupAttackers.Clear();
+
+        for (int i = 0; i < allEnemies.Count; i++)
         {
-            if (enemy.enemyType == CombatTarget.EnemyType.Ranged)
-            {
-                if (enemy.fieldOfView != null && enemy.fieldOfView.CanSeePlayer(player))
-                {
-                    Vector3 targetPos = enemy.TargetFuturePos(player.position, projectileSpeed);
-                    FireProjectile(enemy, targetPos);
-                }
-            }
-            else if (enemy.enemyType == CombatTarget.EnemyType.Melee)
-            {
-                float distance = Vector3.Distance(enemy.transform.position, player.position);
-                if (distance > meleeDistance)
-                {
-                    Vector3 moveDir = (player.position - enemy.transform.position).normalized;
-                    enemy.transform.position += moveDir * enemy.meleeSpeed * Time.deltaTime;
-                    enemy.transform.LookAt(player);
-                }
-            }
+            if (i == 0)
+                primaryAttackers.Add(allEnemies[i]);
+            else if (i == 1)
+                secondaryAttackers.Add(allEnemies[i]);
+            else
+                backupAttackers.Add(allEnemies[i]);
         }
     }
 
-    void AssignRoles()
+    // -------------------------------------------------------
+    // Permissions
+    // -------------------------------------------------------
+    public bool CanAttack(EnemyAI enemy)
     {
-        primaryAttackers.Clear();
-        secondaryAttackers.Clear();
-
-        int count = enemies.Count;
-
-        // Assign primary attackers (first two)
-        for (int i = 0; i < Mathf.Min(2, count); i++)
-            primaryAttackers.Add(enemies[i]);
-
-        // Assign secondary attackers (next two)
-        for (int i = 2; i < count; i++)
-            secondaryAttackers.Add(enemies[i]);
+        return primaryAttackers.Contains(enemy) || secondaryAttackers.Contains(enemy);
     }
 
-    void PositionEnemies()
+    public void ReleaseSlot(EnemyAI enemy)
     {
-        int count = enemies.Count;
+        primaryAttackers.Remove(enemy);
+        secondaryAttackers.Remove(enemy);
+
+        if (allEnemies.Contains(enemy) && !backupAttackers.Contains(enemy))
+            backupAttackers.Add(enemy);
+    }
+
+    public enum Role { None, Primary, Secondary, Backup }
+    public Role currentRole = Role.None;
+
+    public Role GetRole(EnemyAI enemy)
+    {
+        if (primaryAttackers.Contains(enemy))   currentRole = Role.Primary;
+        else if (secondaryAttackers.Contains(enemy)) currentRole = Role.Secondary;
+        else if (backupAttackers.Contains(enemy))    currentRole = Role.Backup;
+        else currentRole = Role.None;
+        return currentRole;
+    }
+    
+    // -------------------------------------------------------
+    //  Call for Help
+    // -------------------------------------------------------
+    
+    public void ForceEngage(EnemyAI enemyAi)
+    {
+        if (enemyAi == null || enemyAi.Fighter == null) return;
+
+        // If the ally is currently backup or idle, allow them to attack
+        // You may need to adjust role assignment if using roles
+        enemyAi.Fighter.canAct = true;
+
+        // Optionally, immediately set their state to Attack if using state machine
+        if (enemyAi.AttackState != null)
+        {
+            enemyAi.GetComponent<StateMachine>()?.SetState(enemyAi.AttackState);
+        }
+
+        Debug.Log($"{enemyAi.name} is forced to engage the player!");
+    }
+
+    // -------------------------------------------------------
+    // Enemy Positioning Around Player
+    // -------------------------------------------------------
+    public void PositionEnemies()
+    {
+        if (player == null) return;
+
+        int count = allEnemies.Count;
         if (count == 0) return;
 
         float angleStep = 360f / count;
 
         for (int i = 0; i < count; i++)
         {
-            CombatTarget enemy = enemies[i];
-            float angle = i * angleStep * Mathf.Deg2Rad;
-            float distance = enemy.enemyType == CombatTarget.EnemyType.Melee ? meleeDistance : rangedDistance;
+            EnemyAI enemyAI = allEnemies[i];
+            if (enemyAI == null) continue;
 
-            // Adjust for secondary attackers
-            if (secondaryAttackers.Contains(enemy))
-                distance += followUpOffset;
+            CombatTarget enemy = enemyAI.GetComponent<CombatTarget>();
+            if (enemy == null) continue;
 
-            Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * distance;
+            float angle = (i * angleStep) * Mathf.Deg2Rad;
+
+            float baseDistance = enemy.enemyType == CombatTarget.EnemyType.Melee
+                ? meleeDistance
+                : rangedDistance;
+
+            if (secondaryAttackers.Contains(enemyAI))
+                baseDistance += followUpOffset;
+
+            Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * baseDistance;
             Vector3 targetPos = player.position + offset;
 
-            // Line-of-sight check
-            if (Physics.Raycast(enemy.transform.position, (player.position - enemy.transform.position).normalized,
-                Vector3.Distance(enemy.transform.position, player.position), obstacleMask))
+            // LOS check
+            if (Physics.Raycast(
+                enemy.transform.position,
+                (player.position - enemy.transform.position).normalized,
+                Vector3.Distance(enemy.transform.position, player.position),
+                obstacleMask))
             {
+                // Step sideways
                 Vector3 perp = Vector3.Cross(offset, Vector3.up).normalized * 1.5f;
                 targetPos += perp;
 
-                if (Physics.Raycast(enemy.transform.position, (player.position - targetPos).normalized,
-                    Vector3.Distance(targetPos, player.position), obstacleMask))
+                // Still obstructed? Pull back slightly.
+                if (Physics.Raycast(
+                    enemy.transform.position,
+                    (player.position - targetPos).normalized,
+                    Vector3.Distance(targetPos, player.position),
+                    obstacleMask))
                 {
-                    targetPos = player.position + offset.normalized * (distance * 0.7f);
+                    targetPos = player.position + offset.normalized * (baseDistance * 0.7f);
                 }
             }
 
@@ -108,9 +182,39 @@ public class EnemyAttackManager : MonoBehaviour
         }
     }
 
-    void FireProjectile(CombatTarget enemy, Vector3 targetPos)
+    // -------------------------------------------------------
+    // Group Health
+    // -------------------------------------------------------
+    public float AverageGroupHealth()
     {
-        GameObject proj = Instantiate(projectilePrefab, enemy.transform.position + Vector3.up * 1f, Quaternion.identity);
-        proj.GetComponent<Projectile>().Launch(targetPos);
+        float total = 0f;
+        int count = 0;
+
+        foreach (var e in allEnemies)
+        {
+            if (e?.Health == null) continue;
+            if (e.Health.isDead) continue;
+
+            total += e.Health.healthPts;
+            count++;
+        }
+
+        return count == 0 ? 0f : total / count;
+    }
+
+    // -------------------------------------------------------
+    // UI Integration
+    // -------------------------------------------------------
+    public List<GameObject> GetEnemies()
+    {
+        List<GameObject> result = new();
+
+        foreach (var ai in allEnemies)
+        {
+            if (ai != null)
+                result.Add(ai.gameObject);
+        }
+
+        return result;
     }
 }
