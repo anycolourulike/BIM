@@ -54,6 +54,7 @@ public class Fighter : MonoBehaviour
     private float secondAttacker = 2f;
     private float thirdAttacker = 3f;
     public float distanceFromPlayer;
+    private Mover _mover;
 
     private readonly string[] attackStates = { "Up", "Down", "Left", "Right" };
     private readonly string[] defendStates = { "Up", "Down", "Left", "Right" };
@@ -68,6 +69,11 @@ public class Fighter : MonoBehaviour
     private DirectionState[] directions = new DirectionState[4];
 
     #region Unity Methods
+
+    private void Start()
+    {
+        _mover = GetComponent<Mover>();
+    }
 
     private void Update()
     {
@@ -284,7 +290,7 @@ public class Fighter : MonoBehaviour
         aiTimer = aiInterval;
 
         if (!canAct) return;
-        MoveTowardsPlayerifTooFar(target);
+        _mover.MoveTo(target.position, 1f);
         Direction dir = (Direction)Random.Range(0, 4);
         TryAttack(dir);
     }
@@ -309,26 +315,5 @@ public class Fighter : MonoBehaviour
                 break;
         }
     }
-
-    private void MoveTowardsPlayerifTooFar(Transform playerTransform)
-    {
-        currentTarget = player;
-        RotateTowards(currentTarget.transform);
-        Vector3 direction = (playerTransform.position - transform.position).normalized;
-        float distance = Vector3.Distance(transform.position, playerTransform.position);
-
-        if (distance > distanceToPlayer &&
-            Physics.Raycast(transform.position, direction, out RaycastHit hit, distance) &&
-            hit.transform == playerTransform)
-        {
-            float moveSpeed = 3f;
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                playerTransform.position,
-                moveSpeed * Time.deltaTime
-            );
-        }
-    }
-
     #endregion
 }

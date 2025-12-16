@@ -155,65 +155,85 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     private void HandleMovement()
     {
         CheckAirState();
+
         Vector2 input = isMovementFingerActive ? movementAmount : moveInput;
 
         if (weaponEquipped)
-        {
-            HandleStrafing(input, currentTarget); // only strafing in weapon mode
-            return; // skip rotation and normal movement
-        }
+            HandleArmedMovement(input);
+        else
+            HandleUnarmedMovement(input);
 
-        // Non-weapon mode: free movement with rotation
+        if (!IsGrounded())
+            rb.AddForce(Vector3.down * extraGravity, ForceMode.Acceleration);
+    }
+
+    private void HandleUnarmedMovement(Vector2 input)
+    {
+        anim.SetLayerWeight(1, 0f);
+        anim.SetFloat("StrafeX", 0f);
+
         Vector3 moveDir = GetWorldDirection(input);
 
-        if (moveDir.sqrMagnitude > 0.01f)
-        {
-            RotateCharacter(moveDir);
-
-            // Apply movement manually if not using root motion, else remove rb.velocity
-            Vector3 targetVelocity = moveDir * moveSpeed;
-            rb.velocity = new Vector3(targetVelocity.x, rb.velocity.y, targetVelocity.z);
-
-            anim.SetFloat("Locomotion", 1f);
-        }
-        else
+        if (moveDir.sqrMagnitude < 0.01f)
         {
             rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
             anim.SetFloat("Locomotion", 0f);
+            return;
         }
+
+        RotateCharacter(moveDir);
+        
+        //Apply Movement
+        rb.velocity = new Vector3(
+            moveDir.x * moveSpeed,
+            rb.velocity.y,
+            moveDir.z * moveSpeed
+        );
+        
+        float blend = Mathf.Clamp01(input.magnitude); //Joystick Magnitude maps to 
+        anim.SetFloat("Locomotion", Mathf.Clamp01(input.magnitude));
     }
-
-    private void HandleStrafing(Vector2 input, Transform target)
+    
+    private void HandleArmedMovement(Vector2 input)
     {
-        if (!weaponEquipped) return;
+        anim.SetLayerWeight(1, 1f);
 
-        Vector3 moveDir;
-
-        if (target != null)
-        {
-            Vector3 toTarget = (target.position - transform.position).normalized;
-            Vector3 right = Vector3.Cross(Vector3.up, toTarget);
-            moveDir = right * input.x + toTarget * input.y;
-        }
-        else
-        {
-            moveDir = transform.forward * input.y + transform.right * input.x;
-        }
-
-        if (moveDir.sqrMagnitude > 0.001f)
-        {
-            Vector3 targetVelocity = moveDir.normalized * moveSpeed;
-            rb.velocity = new Vector3(targetVelocity.x, rb.velocity.y, targetVelocity.z);
-
-            anim.SetFloat("StrafeX", input.x);
-            anim.SetFloat("StrafeY", input.y);
-        }
-        else
+        float mag = Mathf.Clamp01(input.magnitude);
+        if (mag < 0.1f)
         {
             rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
-            anim.SetFloat("StrafeX", 0f);
-            anim.SetFloat("StrafeY", 0f);
+            anim.SetFloat("Locomotion", 0f, 0.1f, Time.deltaTime);
+            anim.SetFloat("StrafeX", 0f, 0.1f, Time.deltaTime);
+            return;
         }
+
+        Vector3 forward;
+        Vector3 right;
+
+        if (currentTarget != null)
+        {
+            forward = (currentTarget.position - transform.position).normalized;
+            forward.y = 0f;
+            right = Vector3.Cross(Vector3.up, forward);
+        }
+        else
+        {
+            forward = transform.forward;
+            right = transform.right;
+        }
+
+        Vector3 moveDir =
+            forward * input.y +
+            right * input.x;
+
+        rb.velocity = new Vector3(
+            moveDir.normalized.x * moveSpeed * mag,
+            rb.velocity.y,
+            moveDir.normalized.z * moveSpeed * mag
+        );
+
+        anim.SetFloat("Locomotion", input.y, 0.1f, Time.deltaTime);
+        anim.SetFloat("StrafeX", input.x, 0.1f, Time.deltaTime);
     }
 
     private Vector3 GetWorldDirection(Vector2 input)
