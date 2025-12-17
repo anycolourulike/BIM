@@ -14,6 +14,7 @@ public class EnemyAI : MonoBehaviour
     public CombatTarget CombatTarget;
     public Animator Anim;
     public PatrolPath PatrolPath;
+    public EnemyAttackManager enemyAttackManager;
 
     [Header("Patrol")]
     public float patrolSpeedFraction = 0.2f;
@@ -46,8 +47,8 @@ public class EnemyAI : MonoBehaviour
         PatrolState = new Patrol(Anim, this, PatrolPath, Mover, patrolSpeedFraction,
                                  waypointDwellTime, waypointTolerance, Mathf.Infinity, 0,
                                  PatrolPath != null ? PatrolPath.GetWaypoint(0) : transform.position);
-        AttackState = new Attack(this, Fighter, Mover, FOV, Health);
-        DeadState = new Dead(this, Fighter, Mover, Health);
+        AttackState = new Attack(this, Fighter, Mover, FOV, Health, enemyAttackManager);
+        DeadState = new Dead(this, Fighter, Mover, Health, enemyAttackManager);
 
         // transitions
         _stateMachine.AddAnyTransition(DeadState, () => Health != null && Health.isDead);
@@ -60,7 +61,7 @@ public class EnemyAI : MonoBehaviour
     void Start()
     {
         // register with manager (manager will ignore null Instance)
-        EnemyAttackManager.Instance?.RegisterEnemy(this);
+        enemyAttackManager.RegisterEnemy(this);
     }
 
     void Update()
@@ -71,7 +72,7 @@ public class EnemyAI : MonoBehaviour
 
     void OnDestroy()
     {
-        EnemyAttackManager.Instance?.UnregisterEnemy(this);
+        enemyAttackManager.UnregisterEnemy(this);
     }
 
     private void UpdateSuspicionTimer()
@@ -110,10 +111,10 @@ public class EnemyAI : MonoBehaviour
     // Convert vector to one of four directions for Fighter
     public Fighter.Direction GetDirectionToPlayer()
     {
-        if (EnemyAttackManager.Instance == null || EnemyAttackManager.Instance.player == null)
+        if (enemyAttackManager == null || enemyAttackManager.player == null)
             return Fighter.Direction.Up;
 
-        Vector3 dir = (EnemyAttackManager.Instance.player.position - transform.position).normalized;
+        Vector3 dir = (enemyAttackManager.player.position - transform.position).normalized;
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.z))
             return dir.x > 0 ? Fighter.Direction.Right : Fighter.Direction.Left;
         else

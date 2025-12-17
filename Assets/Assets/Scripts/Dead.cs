@@ -6,13 +6,15 @@ public class Dead : IState
     private readonly Mover _mover;
     private readonly Fighter _fighter;
     private readonly Health _health;
+    private readonly EnemyAttackManager _enemyAttackManager;
 
-    public Dead(EnemyAI enemyAI, Fighter fighter, Mover mover, Health health)
+    public Dead(EnemyAI enemyAI, Fighter fighter, Mover mover, Health health, EnemyAttackManager enemyAttackManager)
     {
         _enemyAI = enemyAI;
         _mover = mover;
         _fighter = fighter;
         _health = health;
+        _enemyAttackManager = enemyAttackManager;
     }
 
     public void OnEnter()
@@ -28,8 +30,8 @@ public class Dead : IState
         }
 
         // Remove from attack coordination so others reassign roles correctly
-        EnemyAttackManager.Instance?.ReleaseSlot(_enemyAI);
-        EnemyAttackManager.Instance?.UnregisterEnemy(_enemyAI);
+        _enemyAttackManager.ReleaseSlot(_enemyAI);
+        _enemyAttackManager.UnregisterEnemy(_enemyAI);
 
         // disable collider to avoid blocking pathing
         var boxCollider = _enemyAI.GetComponent<BoxCollider>();

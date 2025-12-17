@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class EnemyAttackManager : MonoBehaviour
 {
-    public static EnemyAttackManager Instance;
-
     [Header("Scene")]
     [SerializeField] public Transform player;
     [SerializeField] private LayerMask obstacleMask;
@@ -16,22 +14,45 @@ public class EnemyAttackManager : MonoBehaviour
     [SerializeField] private float followUpOffset = 1.5f;
 
     [Header("Enemy Groups")]
-    private readonly List<EnemyAI> allEnemies = new();
-    private readonly List<EnemyAI> primaryAttackers = new();
-    private readonly List<EnemyAI> secondaryAttackers = new();
-    private readonly List<EnemyAI> backupAttackers = new();
+    public  List<EnemyAI> allEnemies = new();
+    public  List<EnemyAI> primaryAttackers = new();
+    public  List<EnemyAI> secondaryAttackers = new();
+    public  List<EnemyAI> backupAttackers = new();
 
-    public const int MAX_ATTACKERS = 2;
-
+    [Header("Player Detection")] public BoxCollider zoneCollider;
+    
     private void Awake()
     {
-        if (Instance != null)
-        {
-            Destroy(this);
-            return;
-        }
-        Instance = this;
+        zoneCollider = GetComponent<BoxCollider>();
+        zoneCollider.isTrigger = true;
     }
+    
+    private bool playerInside;
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        uiManager.ShowEnemyBtns(true);
+        uiManager.ShowWeaponBtns(true);
+        playerInside = true;
+        player = other.transform;
+
+        EvaluateRoles();
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
+        uiManager.ShowEnemyBtns(false);
+        uiManager.ShowWeaponBtns(false);
+        playerInside = false;
+        player = null;
+
+        // Optional: clear roles or disengage enemies
+    }
+
+
+    public const int MAX_ATTACKERS = 2;
 
     // -------------------------------------------------------
     // Registration
@@ -49,14 +70,20 @@ public class EnemyAttackManager : MonoBehaviour
         secondaryAttackers.Remove(enemy);
         backupAttackers.Remove(enemy);
     }
-
+    
+    public bool IsEnemyInZone(EnemyAI enemy)
+    {
+        return allEnemies.Contains(enemy);
+    }
+    
     // -------------------------------------------------------
     // Role assignment
     // -------------------------------------------------------
     public void EvaluateRoles()
     {
         // Sort by score: highest attackers get priority
-        allEnemies.Sort((a, b) => b.ScoreForAttack().CompareTo(a.ScoreForAttack()));
+        allEnemies.Sort((a, b) => 
+            b.ScoreForAttack().CompareTo(a.ScoreForAttack()));
 
         primaryAttackers.Clear();
         secondaryAttackers.Clear();
@@ -91,21 +118,18 @@ public class EnemyAttackManager : MonoBehaviour
     }
 
     public enum Role { None, Primary, Secondary, Backup }
-    public Role currentRole = Role.None;
 
     public Role GetRole(EnemyAI enemy)
     {
-        if (primaryAttackers.Contains(enemy))   currentRole = Role.Primary;
-        else if (secondaryAttackers.Contains(enemy)) currentRole = Role.Secondary;
-        else if (backupAttackers.Contains(enemy))    currentRole = Role.Backup;
-        else currentRole = Role.None;
-        return currentRole;
+        if (primaryAttackers.Contains(enemy))  return Role.Primary;
+        if (secondaryAttackers.Contains(enemy)) return Role.Secondary;
+        if (backupAttackers.Contains(enemy))  return Role.Backup;
+        return Role.None;
     }
     
     // -------------------------------------------------------
     //  Call for Help
     // -------------------------------------------------------
-    
     public void ForceEngage(EnemyAI enemyAi)
     {
         if (enemyAi == null || enemyAi.Fighter == null) return;
@@ -128,7 +152,7 @@ public class EnemyAttackManager : MonoBehaviour
     // -------------------------------------------------------
     public void PositionEnemies()
     {
-        if (player == null) return;
+        if (!playerInside || player == null) return;
 
         int count = allEnemies.Count;
         if (count == 0) return;
