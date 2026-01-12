@@ -31,6 +31,11 @@ public class CombatTarget : MonoBehaviour
         prevTargetPos = curPos;
     }
 
+    public Transform CurrentPosition()
+    {
+        return this.transform;
+    }
+
     public Vector3 TargetFuturePos(Vector3 shooterPos, float projectileSpeed)
     {
         if (fieldOfView != null && !fieldOfView.CanSeePlayer(transform))

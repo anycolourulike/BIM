@@ -119,5 +119,6 @@ public class EnemyAI : MonoBehaviour
             return dir.x > 0 ? Fighter.Direction.Right : Fighter.Direction.Left;
         else
             return dir.z > 0 ? Fighter.Direction.Up : Fighter.Direction.Down;
-    }
+    }  
+    
 }

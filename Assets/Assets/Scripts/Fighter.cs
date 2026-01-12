@@ -41,6 +41,10 @@ public class Fighter : MonoBehaviour
     public GameObject currentTarget;
     public Transform[] potentialTargets = new Transform[4];
     public int selectedTargetIndex = 0;
+    private Vector3 currentTargetVector;
+    private float targetRefreshTimer;
+    private float refreshInterval = 0.2f;
+    private bool hasTarget;
     public Transform target => 
         (selectedTargetIndex >= 0 && selectedTargetIndex < potentialTargets.Length) 
         ? potentialTargets[selectedTargetIndex] 
@@ -80,6 +84,7 @@ public class Fighter : MonoBehaviour
         RegenStamina();
         HandleHoldDefend();
         if (isEnemy) EnemyTick();
+        TargetTimer();
     }
 
     #endregion
@@ -124,16 +129,62 @@ public class Fighter : MonoBehaviour
     #region Targeting
     
     public void RotateTowards(Transform target)
+{
+    if (target == null) return;
+
+    Vector3 direction = target.position - transform.position;
+    direction.y = 0f;
+
+    if (direction.sqrMagnitude < 0.001f) return;
+
+    Quaternion targetRotation = Quaternion.LookRotation(direction);
+    transform.rotation = Quaternion.Slerp(
+        transform.rotation,
+        targetRotation,
+        10f * Time.deltaTime
+    );
+}
+    
+    public void SelectTarget(int index, bool useEnemyManager = true)
     {
-        if (target == null) return;
+        selectedTargetIndex = index;
+        if (useEnemyManager)
+            RefreshTargetPosition();
+        else
+            currentTarget = potentialTargets[selectedTargetIndex].gameObject;
+    }
+    
+    public void SelectEnemyIndex(int index)
+    {
+        selectedTargetIndex = index;
+        RefreshTargetPosition();
+        targetRefreshTimer = 0f;
+    }
+    
+    private void RefreshTargetPosition()
+    {
+        var enemies = enemyAttackManager.GetEnemies();
+        if (selectedTargetIndex >= enemies.Count) return;
 
-        Vector3 direction = currentTarget.transform.position - transform.position;
-        direction.y = 0;
+        var enemy = enemies[selectedTargetIndex];
+        if (enemy == null) return;
 
-        if (direction.sqrMagnitude < 0.001f) return;
+        currentTargetVector = enemy.transform.position;
+        hasTarget = true;
+    }
 
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+    private void TargetTimer()
+    {
+        targetRefreshTimer += Time.deltaTime;
+        if(targetRefreshTimer >= refreshInterval)
+            RefreshTargetPosition();
+            targetRefreshTimer = 0f;
+    }
+    
+    
+    public Vector3 GetTargetLocation()
+    {
+        return transform.position;
     }
     
     #endregion

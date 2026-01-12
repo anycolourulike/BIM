@@ -7,6 +7,7 @@ using System.Collections;
     {  
                
         private NavMeshAgent navMeshAgent;
+        public bool canMove = true;
         Animator anim;
         Rigidbody rb;
 
@@ -21,15 +22,15 @@ using System.Collections;
 
         void Update()
         {           
-            UpdateAnimator();  
-            RotateTowardsVelocity();
-        }  
+            UpdateAnimator();
 
-        public void RotateTowards(Transform target)
-        {
-            int rotSpeed = 160;
-            var targetToLook = Quaternion.LookRotation(target.transform.position - this.transform.position);
-            this.transform.rotation = Quaternion.Slerp(this.transform.rotation, targetToLook, rotSpeed * Time.deltaTime);            
+            if (!canMove)
+            {
+                navMeshAgent.velocity = Vector3.zero;
+                navMeshAgent.isStopped = true;
+                return;
+            }
+            RotateTowardsVelocity();
         }  
         
         public void RotateTowardsVelocity()
@@ -53,9 +54,10 @@ using System.Collections;
 
         public void MoveTo(Vector3 destination, float speedFraction)
         {   
+            if (!canMove) return;
             navMeshAgent.isStopped = false;      
             navMeshAgent.destination = destination; 
-            //navMeshAgent.speed = maxSpeed * Mathf.Clamp01(speedFraction);
+            navMeshAgent.speed = navMeshAgent.speed * Mathf.Clamp01(speedFraction);
         }
 
         public void CancelNav()
@@ -67,6 +69,7 @@ using System.Collections;
         private void UpdateAnimator()
         {
             float speed = navMeshAgent.velocity.magnitude;
-            anim.SetFloat("Locomotion", speed);         
+            anim.SetFloat("Locomotion", speed);    
+            canMove = speed > 0.05f;  //Ensures Sliding stops when the idle animation is playing
         }       
     }

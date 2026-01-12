@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyAttackManager : MonoBehaviour
 {
-    [Header("Scene")]
+    [Header("EnemyAI Info")]
     [SerializeField] public Transform player;
     [SerializeField] private LayerMask obstacleMask;
     [SerializeField] private UIManager uiManager;
@@ -32,8 +33,10 @@ public class EnemyAttackManager : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+       
+        uiManager.AssignAttackManager(this);
+        //Assign enemies position
         uiManager.ShowEnemyBtns(true);
-        uiManager.ShowWeaponBtns(true);
         playerInside = true;
         player = other.transform;
 
@@ -44,7 +47,7 @@ public class EnemyAttackManager : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         uiManager.ShowEnemyBtns(false);
-        uiManager.ShowWeaponBtns(false);
+       // uiManager.ShowWeaponBtns(false);
         playerInside = false;
         player = null;
 

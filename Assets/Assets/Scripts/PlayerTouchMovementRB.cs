@@ -13,8 +13,8 @@ public class PlayerTouchMovement_RB : MonoBehaviour
     [SerializeField] private FloatingJoystick joystick;
 
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 6f;
-    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float moveSpeed = 15f;
+    [SerializeField] private float rotationSpeed = 15f;
     [SerializeField] float extraGravity = 200f;
 
     [Header("Jump Settings")]
