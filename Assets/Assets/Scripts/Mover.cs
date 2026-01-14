@@ -7,35 +7,36 @@ using System.Collections;
     {  
                
         private NavMeshAgent navMeshAgent;
-        public bool canMove = true;
+        private float baseSpeed;
         Animator anim;
-        Rigidbody rb;
 
         public void Start()
         {
             navMeshAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+            baseSpeed = navMeshAgent.speed;
             navMeshAgent.updateRotation = false;
             anim = GetComponent<Animator>();
-            rb = GetComponent<Rigidbody>();
-            rb.isKinematic = true;
         }
 
         void Update()
-        {           
+        {     
             UpdateAnimator();
+            AnimatorStateInfo state = anim.GetCurrentAnimatorStateInfo(0);
 
-            if (!canMove)
+            if (!state.IsTag("Locomotion"))
             {
-                navMeshAgent.velocity = Vector3.zero;
                 navMeshAgent.isStopped = true;
+                navMeshAgent.velocity = Vector3.zero;
                 return;
             }
+            
+            navMeshAgent.isStopped = false; 
             RotateTowardsVelocity();
         }  
         
         public void RotateTowardsVelocity()
         {
-            Vector3 dir = navMeshAgent.desiredVelocity;
+            Vector3 dir = navMeshAgent.velocity;
             dir.y = 0;
 
             if (dir.sqrMagnitude < 0.01f) return;
@@ -54,10 +55,9 @@ using System.Collections;
 
         public void MoveTo(Vector3 destination, float speedFraction)
         {   
-            if (!canMove) return;
             navMeshAgent.isStopped = false;      
             navMeshAgent.destination = destination; 
-            navMeshAgent.speed = navMeshAgent.speed * Mathf.Clamp01(speedFraction);
+            navMeshAgent.speed = baseSpeed * Mathf.Clamp01(speedFraction);
         }
 
         public void CancelNav()
@@ -69,7 +69,6 @@ using System.Collections;
         private void UpdateAnimator()
         {
             float speed = navMeshAgent.velocity.magnitude;
-            anim.SetFloat("Locomotion", speed);    
-            canMove = speed > 0.05f;  //Ensures Sliding stops when the idle animation is playing
+            anim.SetFloat("Locomotion", speed);  
         }       
     }
