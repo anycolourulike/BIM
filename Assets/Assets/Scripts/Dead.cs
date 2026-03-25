@@ -30,7 +30,7 @@ public class Dead : IState
         }
 
         // Remove from attack coordination so others reassign roles correctly
-        _enemyAttackManager.ReleaseSlot(_enemyAI);
+        //_enemyAttackManager.ReleaseSlot(_enemyAI);
         _enemyAttackManager.UnregisterEnemy(_enemyAI);
 
         // disable collider to avoid blocking pathing

@@ -1,62 +1,68 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-
+using UnityEngine.AI;
+ 
 public class EnemyAttackManager : MonoBehaviour
 {
-    [Header("EnemyAI Info")]
+    // -------------------------------------------------------
+    // Config
+    // -------------------------------------------------------
+    [Header("References")]
     [SerializeField] public Transform player;
     [SerializeField] private LayerMask obstacleMask;
     [SerializeField] private UIManager uiManager;
-
-    [Header("Distances")]
-    [SerializeField] public float meleeDistance = 2f;
-    [SerializeField] public float rangedDistance = 4f;
+ 
+    [Header("Attack Distances")]
+    [SerializeField] public float meleeDistance   = 2f;
+    [SerializeField] public float rangedDistance  = 4f;
     [SerializeField] private float followUpOffset = 1.5f;
-
-    [Header("Enemy Groups")]
-    public  List<EnemyAI> allEnemies = new();
-    public  List<EnemyAI> primaryAttackers = new();
-    public  List<EnemyAI> secondaryAttackers = new();
-    public  List<EnemyAI> backupAttackers = new();
-
-    [Header("Player Detection")] public BoxCollider zoneCollider;
-    
+ 
+    [Header("NavMesh Sampling")]
+    [SerializeField] private float navSampleRadius = 2f;
+ 
+    // -------------------------------------------------------
+    // State
+    // -------------------------------------------------------
+    public List<EnemyAI> allEnemies          = new();
+    public List<EnemyAI> primaryAttackers    = new();
+    public List<EnemyAI> secondaryAttackers  = new();
+    public List<EnemyAI> backupAttackers     = new();
+ 
+    private bool _playerInside;
+ 
+    public enum Role { None, Primary, Secondary, Backup }
+ 
+    // -------------------------------------------------------
+    // Unity
+    // -------------------------------------------------------
     private void Awake()
     {
-        zoneCollider = GetComponent<BoxCollider>();
-        zoneCollider.isTrigger = true;
+        var col      = GetComponent<BoxCollider>();
+        col.isTrigger = true;
     }
-    
-    private bool playerInside;
-
+ 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-       
+ 
+        player        = other.transform;
+        _playerInside = true;
+ 
         uiManager.AssignAttackManager(this);
-        //Assign enemies position
         uiManager.ShowEnemyBtns(true);
-        playerInside = true;
-        player = other.transform;
-
         EvaluateRoles();
     }
-
+ 
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
+ 
+        player        = null;
+        _playerInside = false;
+ 
         uiManager.ShowEnemyBtns(false);
-       // uiManager.ShowWeaponBtns(false);
-        playerInside = false;
-        player = null;
-
-        // Optional: clear roles or disengage enemies
     }
-
-
-    public const int MAX_ATTACKERS = 2;
-
+ 
     // -------------------------------------------------------
     // Registration
     // -------------------------------------------------------
@@ -65,183 +71,187 @@ public class EnemyAttackManager : MonoBehaviour
         if (!allEnemies.Contains(enemy))
             allEnemies.Add(enemy);
     }
-
+ 
     public void UnregisterEnemy(EnemyAI enemy)
     {
         allEnemies.Remove(enemy);
         primaryAttackers.Remove(enemy);
         secondaryAttackers.Remove(enemy);
         backupAttackers.Remove(enemy);
+        EvaluateRoles(); // promote remaining enemies
     }
-    
-    public bool IsEnemyInZone(EnemyAI enemy)
-    {
-        return allEnemies.Contains(enemy);
-    }
-    
+ 
+    public bool IsEnemyInZone(EnemyAI enemy) => allEnemies.Contains(enemy);
+ 
     // -------------------------------------------------------
-    // Role assignment
+    // Role Assignment
     // -------------------------------------------------------
     public void EvaluateRoles()
     {
-        // Sort by score: highest attackers get priority
-        allEnemies.Sort((a, b) => 
-            b.ScoreForAttack().CompareTo(a.ScoreForAttack()));
-
+        allEnemies.Sort((a, b) => b.ScoreForAttack().CompareTo(a.ScoreForAttack()));
+ 
         primaryAttackers.Clear();
         secondaryAttackers.Clear();
         backupAttackers.Clear();
-
+ 
         for (int i = 0; i < allEnemies.Count; i++)
         {
-            if (i == 0)
-                primaryAttackers.Add(allEnemies[i]);
-            else if (i == 1)
-                secondaryAttackers.Add(allEnemies[i]);
-            else
-                backupAttackers.Add(allEnemies[i]);
+            if      (i == 0) primaryAttackers.Add(allEnemies[i]);
+            else if (i == 1) secondaryAttackers.Add(allEnemies[i]);
+            else             backupAttackers.Add(allEnemies[i]);
         }
     }
-
+ 
+    public Role GetRole(EnemyAI enemy)
+    {
+        if (primaryAttackers.Contains(enemy))   return Role.Primary;
+        if (secondaryAttackers.Contains(enemy)) return Role.Secondary;
+        if (backupAttackers.Contains(enemy))    return Role.Backup;
+        return Role.None;
+    }
+ 
     // -------------------------------------------------------
     // Permissions
     // -------------------------------------------------------
     public bool CanAttack(EnemyAI enemy)
     {
-        return primaryAttackers.Contains(enemy) || secondaryAttackers.Contains(enemy);
-    }
+        if (primaryAttackers.Contains(enemy)) return true;
 
+        // Secondary attacks only if primary is gone
+        if (secondaryAttackers.Contains(enemy))
+            return primaryAttackers.Count == 0;
+
+        // Backup attacks only if both are gone
+        if (backupAttackers.Contains(enemy))
+            return primaryAttackers.Count == 0 && secondaryAttackers.Count == 0;
+
+        return false;
+    }
+ 
     public void ReleaseSlot(EnemyAI enemy)
     {
         primaryAttackers.Remove(enemy);
         secondaryAttackers.Remove(enemy);
-
+ 
         if (allEnemies.Contains(enemy) && !backupAttackers.Contains(enemy))
             backupAttackers.Add(enemy);
     }
-
-    public enum Role { None, Primary, Secondary, Backup }
-
-    public Role GetRole(EnemyAI enemy)
-    {
-        if (primaryAttackers.Contains(enemy))  return Role.Primary;
-        if (secondaryAttackers.Contains(enemy)) return Role.Secondary;
-        if (backupAttackers.Contains(enemy))  return Role.Backup;
-        return Role.None;
-    }
-    
+ 
     // -------------------------------------------------------
-    //  Call for Help
+    // Force Engage
     // -------------------------------------------------------
     public void ForceEngage(EnemyAI enemyAi)
     {
         if (enemyAi == null || enemyAi.Fighter == null) return;
-
-        // If the ally is currently backup or idle, allow them to attack
-        // You may need to adjust role assignment if using roles
+ 
         enemyAi.Fighter.canAct = true;
-
-        // Optionally, immediately set their state to Attack if using state machine
-        if (enemyAi.AttackState != null)
-        {
-            enemyAi.GetComponent<StateMachine>()?.SetState(enemyAi.AttackState);
-        }
-
-        Debug.Log($"{enemyAi.name} is forced to engage the player!");
+        enemyAi.GetComponent<StateMachine>()?.SetState(enemyAi.AttackState);
+ 
+        Debug.Log($"{enemyAi.name} forced to engage.");
     }
-
-    // -------------------------------------------------------
-    // Enemy Positioning Around Player
-    // -------------------------------------------------------
-    public void PositionEnemies()
+    
+    public void AlertAllEnemies()
     {
-        if (!playerInside || player == null) return;
-
-        int count = allEnemies.Count;
-        if (count == 0) return;
-
-        float angleStep = 360f / count;
-
-        for (int i = 0; i < count; i++)
+        foreach (var enemy in allEnemies)
         {
-            EnemyAI enemyAI = allEnemies[i];
-            if (enemyAI == null) continue;
-
-            CombatTarget enemy = enemyAI.GetComponent<CombatTarget>();
             if (enemy == null) continue;
-
-            float angle = (i * angleStep) * Mathf.Deg2Rad;
-
-            float baseDistance = enemy.enemyType == CombatTarget.EnemyType.Melee
-                ? meleeDistance
-                : rangedDistance;
-
-            if (secondaryAttackers.Contains(enemyAI))
-                baseDistance += followUpOffset;
-
-            Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * baseDistance;
-            Vector3 targetPos = player.position + offset;
-
-            // LOS check
-            if (Physics.Raycast(
-                enemy.transform.position,
-                (player.position - enemy.transform.position).normalized,
-                Vector3.Distance(enemy.transform.position, player.position),
-                obstacleMask))
-            {
-                // Step sideways
-                Vector3 perp = Vector3.Cross(offset, Vector3.up).normalized * 1.5f;
-                targetPos += perp;
-
-                // Still obstructed? Pull back slightly.
-                if (Physics.Raycast(
-                    enemy.transform.position,
-                    (player.position - targetPos).normalized,
-                    Vector3.Distance(targetPos, player.position),
-                    obstacleMask))
-                {
-                    targetPos = player.position + offset.normalized * (baseDistance * 0.7f);
-                }
-            }
-
-            enemy.transform.position = targetPos;
-            enemy.transform.LookAt(player);
+            enemy.GetComponent<StateMachine>()?.SetState(enemy.AttackState);
         }
     }
+ 
+    // -------------------------------------------------------
+    // Attack Positioning
+    // -------------------------------------------------------
+    /// <summary>
+    /// Returns a NavMesh position around the player for the given enemy to move to.
+    /// </summary>
+    public Vector3 GetAttackPosition(EnemyAI enemy)
+    {
+        if (player == null) return enemy.transform.position;
 
+        Role role = GetRole(enemy);
+
+        float range = role switch
+        {
+            Role.Primary   => meleeDistance,
+            Role.Secondary => meleeDistance + followUpOffset,
+            Role.Backup    => rangedDistance,
+            _              => meleeDistance
+        };
+
+        // Each enemy gets an offset angle so they don't stack
+        int   index = allEnemies.IndexOf(enemy);
+        int   count = Mathf.Max(allEnemies.Count, 1);
+        float angle = index * (360f / count) * Mathf.Deg2Rad;
+
+        Vector3 offset  = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * range;
+        Vector3 desired = player.position + offset;
+
+        desired = ResolveObstruction(enemy, desired, offset, range);
+
+        return NavMesh.SamplePosition(desired, out NavMeshHit hit, 1f, NavMesh.AllAreas)
+            ? hit.position
+            : enemy.transform.position;
+    }
+ 
+    private float GetRangeForEnemy(EnemyAI enemy)
+    {
+        if (enemy.CombatTarget == null) return meleeDistance;
+        return enemy.CombatTarget.enemyType == CombatTarget.EnemyType.Melee
+            ? meleeDistance
+            : rangedDistance;
+    }
+ 
+    private Vector3 ResolveObstruction(EnemyAI enemy, Vector3 desired, Vector3 offset, float range)
+    {
+        Vector3 enemyPos  = enemy.transform.position;
+        Vector3 playerPos = player.position;
+        Vector3 toPlayer  = (playerPos - enemyPos).normalized;
+        float   dist      = Vector3.Distance(enemyPos, playerPos);
+ 
+        if (!Physics.Raycast(enemyPos, toPlayer, dist, obstacleMask))
+            return desired;
+ 
+        // Step sideways
+        Vector3 perp        = Vector3.Cross(offset, Vector3.up).normalized * 1.5f;
+        Vector3 sidestepped = desired + perp;
+ 
+        Vector3 toSidestepped = (playerPos - sidestepped).normalized;
+        float   sideDist      = Vector3.Distance(sidestepped, playerPos);
+ 
+        if (!Physics.Raycast(enemyPos, toSidestepped, sideDist, obstacleMask))
+            return sidestepped;
+ 
+        // Pull back
+        return playerPos + offset.normalized * (range * 0.7f);
+    }
+ 
     // -------------------------------------------------------
     // Group Health
     // -------------------------------------------------------
     public float AverageGroupHealth()
     {
         float total = 0f;
-        int count = 0;
-
+        int   count = 0;
+ 
         foreach (var e in allEnemies)
         {
-            if (e?.Health == null) continue;
-            if (e.Health.isDead) continue;
-
+            if (e?.Health == null || e.Health.isDead) continue;
             total += e.Health.healthPts;
             count++;
         }
-
+ 
         return count == 0 ? 0f : total / count;
     }
-
+ 
     // -------------------------------------------------------
-    // UI Integration
+    // UI
     // -------------------------------------------------------
     public List<GameObject> GetEnemies()
     {
-        List<GameObject> result = new();
-
+        var result = new List<GameObject>();
         foreach (var ai in allEnemies)
-        {
-            if (ai != null)
-                result.Add(ai.gameObject);
-        }
-
+            if (ai != null) result.Add(ai.gameObject);
         return result;
     }
 }

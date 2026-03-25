@@ -83,8 +83,10 @@ public class Fighter : MonoBehaviour
     {
         RegenStamina();
         HandleHoldDefend();
-        if (isEnemy) EnemyTick();
         TargetTimer();
+        
+        if (!isEnemy && currentTarget != null)
+            RotateTowards(currentTarget.transform);
     }
 
     #endregion
@@ -164,6 +166,7 @@ public class Fighter : MonoBehaviour
     private void RefreshTargetPosition()
     {
         var enemies = enemyAttackManager.GetEnemies();
+        if (enemies == null || selectedTargetIndex >= enemies.Count) return;
         if (selectedTargetIndex >= enemies.Count) return;
 
         var enemy = enemies[selectedTargetIndex];
@@ -220,11 +223,7 @@ public class Fighter : MonoBehaviour
     {
         anim.SetTrigger("Sheath Sword");
         currentWeapon = WeaponType.Unarmed;
-        if (this.gameObject == gameObject.CompareTag("Player"))
-        {
-            playerTouch.WeaponEquipped = false;
-        }
-        // SetLayerWeight(swordAttackLayer, 0f); // optionally disable layer
+        currentTarget = null;
     }
 
     public void TryAttack(Direction dir, float damageMultiplier = 1f)
@@ -336,6 +335,10 @@ public class Fighter : MonoBehaviour
     {
         var role = enemyAttackManager.GetRole(enemyAi);
         AssignAttackPriority(role);
+    
+        if (target != null)
+            RotateTowards(target); // every frame, outside timer
+
         aiTimer -= Time.deltaTime;
         if (aiTimer > 0f) return;
         aiTimer = aiInterval;

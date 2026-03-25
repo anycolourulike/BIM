@@ -15,11 +15,9 @@ public class FieldOFView : MonoBehaviour
    private GameObject player;
    public float viewRadius = 10f; 
    public Vector3 lastKnownPlayerPos;
-   public Transform playerTransform;
    public LayerMask obstructionMask; 
-   public LayerMask playerMask;
    public bool canSeePlayer;
-   EnemyAI enemyAI;
+   private bool isVisible;
 
    private void OnEnable()
    {     
@@ -28,7 +26,7 @@ public class FieldOFView : MonoBehaviour
      {
        Debug.LogWarning("No player found");
      }
-     enemyAI = GetComponent<EnemyAI>();
+     
      FindColliders();
    }      
 
@@ -71,10 +69,8 @@ public class FieldOFView : MonoBehaviour
     public void LateUpdate()
     {
       currentTime += Time.deltaTime;
-
       if (currentTime >= 0.2f)
       {
-        canSeePlayer = false;
         FieldOfViewCheck();
         currentTime = 0f;
       }
@@ -85,7 +81,7 @@ public class FieldOFView : MonoBehaviour
       if (player == null)
         return;
       
-      lastKnownPlayerPos = playerTransform.position;
+      lastKnownPlayerPos = player.transform.position;
 
       Vector3 directionToPlayer = (player.transform.position - transform.position).normalized;
 
@@ -113,6 +109,13 @@ public class FieldOFView : MonoBehaviour
 
       // Player is visible
       canSeePlayer = true;
+      
+      // In FieldOfViewCheck, when canSeePlayer flips to true
+      if (!canSeePlayer && isVisible)
+      {
+        canSeePlayer = true;
+        GetComponent<EnemyAI>()?.enemyAttackManager.AlertAllEnemies();
+      }
     }
 
 }

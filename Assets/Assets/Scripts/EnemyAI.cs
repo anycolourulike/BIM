@@ -6,6 +6,9 @@ using UnityEngine;
 [RequireComponent(typeof(FieldOFView))]
 public class EnemyAI : MonoBehaviour
 {
+    // -------------------------------------------------------
+    // Inspector
+    // -------------------------------------------------------
     [Header("Components")]
     public Fighter Fighter;
     public Mover Mover;
@@ -18,107 +21,105 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Patrol")]
     public float patrolSpeedFraction = 0.2f;
-    public float waypointTolerance = 1f;
-    public float waypointDwellTime = 1.7f;
+    public float waypointTolerance   = 1f;
+    public float waypointDwellTime   = 1.7f;
 
-    [Header("Suspicion (detection gating)")]
-    [Tooltip("When player first seen, this delay counts down; Attack only triggers when canSeePlayer && suspicionTimer <= 0")]
+    [Header("Suspicion")]
+    [Tooltip("Delay before attacking after player is spotted")]
     public float suspicionDelay = 0.5f;
-    private float suspicionTimer = 0f;
 
-    // State machine
+    // -------------------------------------------------------
+    // State Machine
+    // -------------------------------------------------------
     private StateMachine _stateMachine;
     public Patrol PatrolState;
     public Attack AttackState;
-    public Dead DeadState;
+    public Dead   DeadState;
 
-    void Awake()
+    private float _suspicionTimer;
+
+    // -------------------------------------------------------
+    // Unity
+    // -------------------------------------------------------
+    private void Awake()
     {
-        // caches
-        Fighter = Fighter ?? GetComponent<Fighter>();
-        Mover = Mover ?? GetComponent<Mover>();
-        FOV = FOV ?? GetComponent<FieldOFView>();
-        Health = Health ?? GetComponent<Health>();
+        Fighter      = Fighter      ?? GetComponent<Fighter>();
+        Mover        = Mover        ?? GetComponent<Mover>();
+        FOV          = FOV          ?? GetComponent<FieldOFView>();
+        Health       = Health       ?? GetComponent<Health>();
         CombatTarget = CombatTarget ?? GetComponent<CombatTarget>();
-        Anim = Anim ?? GetComponent<Animator>();
+        Anim         = Anim         ?? GetComponent<Animator>();
 
-        // states
-        _stateMachine = new StateMachine();
-        PatrolState = new Patrol(Anim, this, PatrolPath, Mover, patrolSpeedFraction,
-                                 waypointDwellTime, waypointTolerance, Mathf.Infinity, 0,
-                                 PatrolPath != null ? PatrolPath.GetWaypoint(0) : transform.position);
-        AttackState = new Attack(this, Fighter, Mover, FOV, Health, enemyAttackManager);
-        DeadState = new Dead(this, Fighter, Mover, Health, enemyAttackManager);
-
-        // transitions
-        _stateMachine.AddAnyTransition(DeadState, () => Health != null && Health.isDead);
-        _stateMachine.AddTransition(AttackState, PatrolState, () => FOV != null && FOV.canSeePlayer && suspicionTimer <= 0f);
-        _stateMachine.AddTransition(PatrolState, AttackState, () => FOV != null && !FOV.canSeePlayer && suspicionTimer <= 0f);
-
-        _stateMachine.SetState(PatrolState);
+        BuildStateMachine();
     }
 
-    void Start()
+    private void Start()
     {
-        // register with manager (manager will ignore null Instance)
         enemyAttackManager.RegisterEnemy(this);
     }
 
-    void Update()
+    private void Update()
     {
-        UpdateSuspicionTimer();
+        TickSuspicion();
         _stateMachine.Tick();
+        Debug.Log($"{name} | State: {_stateMachine.CurrentState?.GetType().Name} | CanSee: {FOV.canSeePlayer} | Suspicion: {_suspicionTimer:F2}");
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         enemyAttackManager.UnregisterEnemy(this);
     }
 
-    private void UpdateSuspicionTimer()
+    // -------------------------------------------------------
+    // State Machine Setup
+    // -------------------------------------------------------
+    private void BuildStateMachine()
     {
-        // If we see the player, start/reduce the suspicion timer towards zero.
-        // Attack will only happen when both canSeePlayer AND suspicionTimer <= 0 (per requirement).
-        if (FOV != null && FOV.canSeePlayer)
-        {
-            // if just started seeing the player, set timer to delay if not already counting down
-            if (suspicionTimer > 0f)
-            {
-                suspicionTimer -= Time.deltaTime;
-            }
-            else
-            {
-                // do nothing; it's already <=0 and can trigger Attack via transition
-            }
-        }
-        else
-        {
-            // when player not visible, reset suspicionTimer to the delay so that
-            // when player next appears they require the delay to reach 0 to attack.
-            suspicionTimer = suspicionDelay;
-            // Note: you can change this behaviour if you want different semantics.
-        }
+        _stateMachine = new StateMachine();
+
+        Vector3 startWaypoint = PatrolPath != null
+            ? PatrolPath.GetWaypoint(0)
+            : transform.position;
+
+        PatrolState = new Patrol(Anim, this, PatrolPath, Mover, patrolSpeedFraction,
+                                 waypointDwellTime, waypointTolerance, Mathf.Infinity, 0,
+                                 startWaypoint);
+        AttackState = new Attack(this, Fighter, Mover, FOV, Health, enemyAttackManager);
+        DeadState   = new Dead(this, Fighter, Mover, Health, enemyAttackManager);
+
+        _stateMachine.AddAnyTransition(DeadState,   () => Health != null && Health.isDead);
+        _stateMachine.AddTransition(PatrolState, AttackState, () => FOV != null && FOV.canSeePlayer);
+        _stateMachine.SetState(PatrolState);
     }
 
-    // Score for AttackManager ordering
+    // -------------------------------------------------------
+    // Suspicion
+    // -------------------------------------------------------
+    private void TickSuspicion()
+    {
+        if (FOV != null && FOV.canSeePlayer)
+            _suspicionTimer = Mathf.Max(0f, _suspicionTimer - Time.deltaTime);
+        else
+            _suspicionTimer = suspicionDelay;
+    }
+
+    // -------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------
     public float ScoreForAttack()
     {
-        float healthScore = Health != null ? Health.healthPts : 0f;
-        float staminaScore = Fighter != null ? Fighter.stamina : 0f;
-        return healthScore + staminaScore * 0.5f; // weight stamina less if desired
+        float health  = Health  != null ? Health.healthPts : 0f;
+        float stamina = Fighter != null ? Fighter.stamina  : 0f;
+        return health + stamina * 0.5f;
     }
 
-    // Convert vector to one of four directions for Fighter
     public Fighter.Direction GetDirectionToPlayer()
     {
-        if (enemyAttackManager == null || enemyAttackManager.player == null)
-            return Fighter.Direction.Up;
+        if (enemyAttackManager?.player == null) return Fighter.Direction.Up;
 
         Vector3 dir = (enemyAttackManager.player.position - transform.position).normalized;
-        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.z))
-            return dir.x > 0 ? Fighter.Direction.Right : Fighter.Direction.Left;
-        else
-            return dir.z > 0 ? Fighter.Direction.Up : Fighter.Direction.Down;
-    }  
-    
+        return Mathf.Abs(dir.x) > Mathf.Abs(dir.z)
+            ? (dir.x > 0 ? Fighter.Direction.Right : Fighter.Direction.Left)
+            : (dir.z > 0 ? Fighter.Direction.Up    : Fighter.Direction.Down);
+    }
 }
