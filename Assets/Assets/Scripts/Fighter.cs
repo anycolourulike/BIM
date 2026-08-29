@@ -96,12 +96,14 @@ public class Fighter : MonoBehaviour
     public void PressDirection(int dir)
     {
         if (!canAct) return;
+        if (dir < 0 || dir >= directions.Length) return;
         directions[dir].pressed = true;
         directions[dir].pressTime = Time.time;
     }
 
     public void ReleaseDirection(int dir)
     {
+        if (dir < 0 || dir >= directions.Length) return;
         if (!directions[dir].pressed) return;
 
         float heldTime = Time.time - directions[dir].pressTime;
@@ -151,9 +153,13 @@ public class Fighter : MonoBehaviour
     {
         selectedTargetIndex = index;
         if (useEnemyManager)
+        {
             RefreshTargetPosition();
-        else
-            currentTarget = potentialTargets[selectedTargetIndex].gameObject;
+        }
+        else if (index >= 0 && index < potentialTargets.Length && potentialTargets[index] != null)
+        {
+            currentTarget = potentialTargets[index].gameObject;
+        }
     }
     
     public void SelectEnemyIndex(int index)
@@ -165,9 +171,10 @@ public class Fighter : MonoBehaviour
     
     private void RefreshTargetPosition()
     {
+        if (enemyAttackManager == null) return;
+
         var enemies = enemyAttackManager.GetEnemies();
-        if (enemies == null || selectedTargetIndex >= enemies.Count) return;
-        if (selectedTargetIndex >= enemies.Count) return;
+        if (enemies == null || selectedTargetIndex < 0 || selectedTargetIndex >= enemies.Count) return;
 
         var enemy = enemies[selectedTargetIndex];
         if (enemy == null) return;
@@ -179,9 +186,11 @@ public class Fighter : MonoBehaviour
     private void TargetTimer()
     {
         targetRefreshTimer += Time.deltaTime;
-        if(targetRefreshTimer >= refreshInterval)
+        if (targetRefreshTimer >= refreshInterval)
+        {
             RefreshTargetPosition();
             targetRefreshTimer = 0f;
+        }
     }
     
     
@@ -211,9 +220,9 @@ public class Fighter : MonoBehaviour
     private void EquipMeleeWeapon()
     {
         currentWeapon = WeaponType.Melee;
-        SetLayerWeight(swordAttackLayer, 1f);
-        anim.SetTrigger("Draw Sword");
-        if (this.gameObject == gameObject.CompareTag("Player"))
+        SetLayerWeight(swordMovementLayer, 1f);
+        anim?.SetTrigger("Draw Sword");
+        if (CompareTag("Player") && playerTouch != null)
         {
             playerTouch.WeaponEquipped = true;
         }
@@ -221,9 +230,14 @@ public class Fighter : MonoBehaviour
 
     private void UnequipWeapon()
     {
-        anim.SetTrigger("Sheath Sword");
+        anim?.SetTrigger("Sheath Sword");
+        SetLayerWeight(swordMovementLayer, 0f);
         currentWeapon = WeaponType.Unarmed;
         currentTarget = null;
+        if (CompareTag("Player") && playerTouch != null)
+        {
+            playerTouch.WeaponEquipped = false;
+        }
     }
 
     public void TryAttack(Direction dir, float damageMultiplier = 1f)
@@ -269,9 +283,11 @@ public class Fighter : MonoBehaviour
 
     private void PlayAttackAnimation(Direction dir, float damageMultiplier)
     {
-        anim?.Play(attackStates[(int)dir]);
+        SetLayerWeight(swordAttackLayer, 1f);
+        anim?.Play(attackStates[(int)dir], swordAttackLayer, 0f);
         // CombatSystem.Instance.DealDamage(target, baseDamage * damageMultiplier);
-        // StartCoroutine(ResetAttackLayer());
+        if (isActiveAndEnabled)
+            StartCoroutine(ResetAttackLayer());
     }
 
     private void PlayDefendAnimation(Direction dir)
@@ -287,8 +303,10 @@ public class Fighter : MonoBehaviour
 
     private System.Collections.IEnumerator ResetAttackLayer()
     {
-        yield return null; // wait 1 frame
-        float length = anim.GetCurrentAnimatorStateInfo(swordAttackLayer).length;
+        yield return null; // let the Animator enter the new state
+        float length = anim != null
+            ? anim.GetCurrentAnimatorStateInfo(swordAttackLayer).length
+            : 0f;
         yield return new WaitForSeconds(length);
         SetLayerWeight(swordAttackLayer, 0f);
     }

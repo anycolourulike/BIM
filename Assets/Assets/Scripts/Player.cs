@@ -22,9 +22,13 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject enemyUI3;
     [SerializeField] GameObject enemyUI4;
     [SerializeField] PlayerFollow PlayerCam;
+    [SerializeField] Animation pickupAnim; // optional: assign the pickup Animation directly
     GameObject pauseButton;
     Animation PUAnim;
-    
+
+    private bool _isDead;
+    private int  _textToken; // bumped whenever new on-screen text is shown, so stale coroutines don't hide it
+
 
     public RectTransform enemyUI; // Reference to the Enemy UI element
     public RectTransform centerUI; // Reference to the Center UI element
@@ -46,7 +50,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        PUAnim = FindObjectOfType<Animation>();
+        PUAnim = pickupAnim != null ? pickupAnim : FindObjectOfType<Animation>();
         pauseButton = GameObject.FindWithTag("Pause");
     }
     
@@ -76,95 +80,131 @@ public class Player : MonoBehaviour
 
     public IEnumerator ShowTEXT15()
     {
-        text.enabled = true;
-        text.SetText("+15 EXTRA SECONDS");
-        yield return new WaitForSeconds(7f);
-        text.enabled = false;
+        yield return ShowTimedText("+15 EXTRA SECONDS", 7f);
     }
 
     public IEnumerator ShowTEXT30()
     {
+        yield return ShowTimedText("+30 EXTRA SECONDS", 7f);
+    }
+
+    private IEnumerator ShowTimedText(string message, float seconds)
+    {
+        if (text == null) yield break;
+
+        int token = ++_textToken;
         text.enabled = true;
-        text.SetText("+30 EXTRA SECONDS");
-        yield return new WaitForSeconds(7f);
-        text.enabled = false;
+        text.SetText(message);
+
+        yield return new WaitForSeconds(seconds);
+
+        if (_textToken == token) // a newer message hasn't replaced ours
+            text.enabled = false;
     }
 
     public IEnumerator DoorOpenedTimer()
     {
+        if (text == null) yield break;
+
+        int token = ++_textToken;
         text.enabled = true;
         text.SetText("Door Open");
-        yield return new WaitForSeconds(doorOpenTimer);
+        yield return new WaitForSeconds(Mathf.Max(0f, doorOpenTimer));
 
-        PUAnim.Play("PUAnim");
+        if (PUAnim != null) PUAnim.Play("PUAnim");
         yield return new WaitForSeconds(5f);
-        PUAnim.Stop("PUAnim");
-        text.enabled = false;
+        if (PUAnim != null) PUAnim.Stop("PUAnim");
+
+        if (_textToken == token)
+            text.enabled = false;
     }
 
     public void DisableText()
     {
-        text.enabled = false;
+        _textToken++; // invalidate any running text coroutine
+        if (text != null)
+            text.enabled = false;
     }
 
     public void OutOfTime()
     {
-        onDeath.Invoke(); //play audio
+        onDeath?.Invoke(); //play audio
         playerHasDied?.Invoke(); // Pause Time & handle Player Death
-        Instantiate(PlayerDeath, player.transform.position, Quaternion.identity);
+
+        if (PlayerDeath != null && player != null)
+            Instantiate(PlayerDeath, player.transform.position, Quaternion.identity);
     }
 
-    public void PlayerComlpete()
+    public void PlayerComplete()
     {
-        Instantiate(PlayerCompleteLevel, player.transform.position, Quaternion.identity);
+        if (PlayerCompleteLevel != null && player != null)
+            Instantiate(PlayerCompleteLevel, player.transform.position, Quaternion.identity);
     }
 
     public void HandlePlayerDeath()
     {
-        this.gameObject.tag = "Respawn";
-        player.GetComponentInChildren<MeshRenderer>().enabled = false;
-        player.GetComponent<BoxCollider>().enabled = false;
+        if (_isDead) return; // several call sites + the static event can all fire this
+        _isDead = true;
+
+        gameObject.tag = "Respawn";
+
+        if (player != null)
+        {
+            var rend = player.GetComponentInChildren<Renderer>(); // Renderer covers Skinned meshes too
+            if (rend != null) rend.enabled = false;
+
+            var col = player.GetComponent<Collider>();
+            if (col != null) col.enabled = false;
+        }
 
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.OnPlayerDeath();
-            PlayerLives playerlives;
-            playerlives = GameManager.Instance.playerLives;
-            var playerLivesLeft = playerlives.CurrentLives;
             SaveManager.Instance.Save();
+        }
+
+        if (pauseButton != null)
             pauseButton.SetActive(false);
 
-            if (playerLivesLeft == 0)
-            {
-                DialogUI.Instance
-                    .SetTitle("Game Over")
-                    .SetMessage("Puny Human!")
-                    .OnClose(LevelManager.loadMenu)
-                    .Show();
-            }
-            if (playerLivesLeft % 3 == 0)
-            {
-                DialogUI.Instance
-                    .SetTitle("Ouch!")
-                    .SetMessage("Poor Blaze!")
-                    .OnClose(LevelManager.reloadLevel)
-                    .Show();
-            }
-            else
-            {
-                DialogUI.Instance
-                    .SetTitle("You Died!")
-                    .SetMessage("One Life Lost!")
-                    .OnClose(LevelManager.reloadLevel)
-                    .Show();
-            }
+        int livesLeft = -1;
+        if (GameManager.Instance != null && GameManager.Instance.playerLives != null)
+            livesLeft = GameManager.Instance.playerLives.CurrentLives;
+
+        ShowDeathDialog(livesLeft);
+    }
+
+    private void ShowDeathDialog(int livesLeft)
+    {
+        if (DialogUI.Instance == null)
+        {
+            Debug.Log("Player Died");
+            return;
+        }
+
+        if (livesLeft == 0)
+        {
+            DialogUI.Instance
+                .SetTitle("Game Over")
+                .SetMessage("Puny Human!")
+                .OnClose(LevelManager.loadMenu)
+                .Show();
+        }
+        else if (livesLeft > 0 && livesLeft % 3 == 0)
+        {
+            DialogUI.Instance
+                .SetTitle("Ouch!")
+                .SetMessage("Poor Blaze!")
+                .OnClose(LevelManager.reloadLevel)
+                .Show();
         }
         else
         {
-            Debug.Log("Player" + " " + "Died");
+            DialogUI.Instance
+                .SetTitle("You Died!")
+                .SetMessage("One Life Lost!")
+                .OnClose(LevelManager.reloadLevel)
+                .Show();
         }
-       
-        
     }
 
 

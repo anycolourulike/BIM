@@ -19,6 +19,10 @@ public class EnemyAttackManager : MonoBehaviour
  
     [Header("NavMesh Sampling")]
     [SerializeField] private float navSampleRadius = 2f;
+
+    [Header("Role Evaluation")]
+    [Tooltip("How often roles are recomputed while the player is inside the zone")]
+    [SerializeField] private float roleReevalInterval = 0.25f;
  
     // -------------------------------------------------------
     // State
@@ -28,7 +32,8 @@ public class EnemyAttackManager : MonoBehaviour
     public List<EnemyAI> secondaryAttackers  = new();
     public List<EnemyAI> backupAttackers     = new();
  
-    private bool _playerInside;
+    private bool  _playerInside;
+    private float _roleReevalTimer;
  
     public enum Role { None, Primary, Secondary, Backup }
  
@@ -37,30 +42,67 @@ public class EnemyAttackManager : MonoBehaviour
     // -------------------------------------------------------
     private void Awake()
     {
-        var col      = GetComponent<BoxCollider>();
-        col.isTrigger = true;
+        var col = GetComponent<Collider>();
+        if (col != null)
+            col.isTrigger = true;
+        else
+            Debug.LogError($"{name}: EnemyAttackManager needs a Collider to act as its trigger zone.", this);
     }
- 
+
+    private void Update()
+    {
+        if (!_playerInside) return;
+
+        _roleReevalTimer -= Time.deltaTime;
+        if (_roleReevalTimer <= 0f)
+        {
+            _roleReevalTimer = roleReevalInterval;
+            EvaluateRoles();
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
- 
-        player        = other.transform;
-        _playerInside = true;
- 
-        uiManager.AssignAttackManager(this);
-        uiManager.ShowEnemyBtns(true);
+
+        player           = ResolvePlayerRoot(other);
+        _playerInside    = true;
+        _roleReevalTimer = 0f;
+
+        if (uiManager != null)
+        {
+            uiManager.player  = player;
+            uiManager.fighter = player.GetComponentInChildren<Fighter>();
+            uiManager.AssignAttackManager(this);
+            uiManager.ShowEnemyBtns(true);
+        }
+
         EvaluateRoles();
     }
- 
+
+    /// <summary>
+    /// A player collider may sit on a child object; walk up to the rigidbody/root
+    /// so <see cref="player"/> is the actual player transform.
+    /// </summary>
+    private static Transform ResolvePlayerRoot(Collider other)
+        => other.attachedRigidbody != null ? other.attachedRigidbody.transform : other.transform;
+
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player")) return;
- 
+
         player        = null;
         _playerInside = false;
- 
-        uiManager.ShowEnemyBtns(false);
+
+        primaryAttackers.Clear();
+        secondaryAttackers.Clear();
+        backupAttackers.Clear();
+
+        if (uiManager != null)
+        {
+            uiManager.ShowEnemyBtns(false);
+            uiManager.SetAttackManager(null);
+        }
     }
  
     // -------------------------------------------------------
@@ -88,6 +130,9 @@ public class EnemyAttackManager : MonoBehaviour
     // -------------------------------------------------------
     public void EvaluateRoles()
     {
+        // Drop any destroyed enemies that never got unregistered.
+        allEnemies.RemoveAll(e => e == null);
+
         allEnemies.Sort((a, b) => b.ScoreForAttack().CompareTo(a.ScoreForAttack()));
  
         primaryAttackers.Clear();
@@ -132,9 +177,11 @@ public class EnemyAttackManager : MonoBehaviour
     {
         primaryAttackers.Remove(enemy);
         secondaryAttackers.Remove(enemy);
- 
+
         if (allEnemies.Contains(enemy) && !backupAttackers.Contains(enemy))
             backupAttackers.Add(enemy);
+
+        EvaluateRoles(); // promote the next-best attacker into the vacated slot
     }
  
     // -------------------------------------------------------
@@ -171,12 +218,16 @@ public class EnemyAttackManager : MonoBehaviour
 
         Role role = GetRole(enemy);
 
-        float range = role switch
+        // Base stand-off distance is set by the enemy's own combat style
+        // (a ranged enemy shouldn't be shoved into melee range, and vice versa)...
+        float range = GetRangeForEnemy(enemy);
+
+        // ...then pushed out by role so multiple attackers don't share one ring.
+        range += role switch
         {
-            Role.Primary   => meleeDistance,
-            Role.Secondary => meleeDistance + followUpOffset,
-            Role.Backup    => rangedDistance,
-            _              => meleeDistance
+            Role.Secondary => followUpOffset,
+            Role.Backup    => followUpOffset * 2f,
+            _              => 0f
         };
 
         // Each enemy gets an offset angle so they don't stack
@@ -189,7 +240,7 @@ public class EnemyAttackManager : MonoBehaviour
 
         desired = ResolveObstruction(enemy, desired, offset, range);
 
-        return NavMesh.SamplePosition(desired, out NavMeshHit hit, 1f, NavMesh.AllAreas)
+        return NavMesh.SamplePosition(desired, out NavMeshHit hit, navSampleRadius, NavMesh.AllAreas)
             ? hit.position
             : enemy.transform.position;
     }
@@ -236,7 +287,7 @@ public class EnemyAttackManager : MonoBehaviour
  
         foreach (var e in allEnemies)
         {
-            if (e?.Health == null || e.Health.isDead) continue;
+            if (e == null || e.Health == null || e.Health.isDead) continue;
             total += e.Health.healthPts;
             count++;
         }
