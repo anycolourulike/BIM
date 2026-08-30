@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Stamina))]
 public class Fighter : MonoBehaviour
 {
     public enum WeaponType { Unarmed, Melee, Ranged }
@@ -12,7 +13,7 @@ public class Fighter : MonoBehaviour
 
     [Header("Animation & Weapon")]
     public Animator anim;
-    public WeaponType currentWeapon = WeaponType.Melee;
+    public WeaponType currentWeapon = WeaponType.Unarmed;
 
     [Header("Animator Layers")]
     public int unarmedLayer = 0;
@@ -24,13 +25,12 @@ public class Fighter : MonoBehaviour
     public bool isEnemy;
     public bool canAct = true;
 
-    [Header("Stamina")]
-    public float stamina = 100f;
-    public float maxStamina = 100f;
-    public float staminaRegenRate = 10f;
-    public float staminaCostAttack = 20f;
-    public float staminaCostParry = 15f;
-    public float staminaCostShoot = 25f;
+    // Stamina pool lives on the Stamina component (Docs/Combat-Health-Stamina-Design.md).
+    // Attacks cost nothing; a parry costs one fifth of the bar (Stamina.ParryCost).
+    private Stamina _stamina;
+
+    /// <summary>Read-only view of current stamina for external scorers such as EnemyAI.</summary>
+    public float stamina => _stamina != null ? _stamina.Current : 0f;
 
     [Header("Timing")]
     public float holdThreshold = 0.28f;
@@ -77,11 +77,11 @@ public class Fighter : MonoBehaviour
     private void Start()
     {
         _mover = GetComponent<Mover>();
+        _stamina = GetComponent<Stamina>();
     }
 
     private void Update()
     {
-        RegenStamina();
         HandleHoldDefend();
         TargetTimer();
         
@@ -217,7 +217,7 @@ public class Fighter : MonoBehaviour
         }
     }
 
-    private void EquipMeleeWeapon()
+    public void EquipMeleeWeapon()
     {
         currentWeapon = WeaponType.Melee;
         SetLayerWeight(swordMovementLayer, 1f);
@@ -228,7 +228,7 @@ public class Fighter : MonoBehaviour
         }
     }
 
-    private void UnequipWeapon()
+    public void UnequipWeapon()
     {
         anim?.SetTrigger("Sheath Sword");
         SetLayerWeight(swordMovementLayer, 0f);
@@ -242,20 +242,17 @@ public class Fighter : MonoBehaviour
 
     public void TryAttack(Direction dir, float damageMultiplier = 1f)
     {
-        if (!canAct || stamina < staminaCostAttack) return;
+        if (!canAct) return;
 
-        stamina -= staminaCostAttack;
         PlayAttackAnimation(dir, damageMultiplier);
     }
 
     private void StartDefend(Direction dir)
     {
         int index = (int)dir;
-        if (!canAct || stamina < staminaCostParry) return;
+        if (!canAct || _stamina == null || !_stamina.TrySpend(_stamina.ParryCost)) return;
 
         directions[index].defending = true;
-        stamina -= staminaCostParry;
-
         PlayDefendAnimation(dir);
     }
 
@@ -315,12 +312,6 @@ public class Fighter : MonoBehaviour
 
     #region Stamina
 
-    private void RegenStamina()
-    {
-        if (stamina < maxStamina)
-            stamina = Mathf.Clamp(stamina + staminaRegenRate * Time.deltaTime, 0f, maxStamina);
-    }
-
     private void HandleHoldDefend()
     {
         if (!canAct) return;
@@ -330,7 +321,7 @@ public class Fighter : MonoBehaviour
             if (directions[i].pressed && !directions[i].defending)
             {
                 if (Time.time - directions[i].pressTime >= holdThreshold &&
-                    stamina >= staminaCostParry)
+                    _stamina != null && _stamina.CanParry)
                 {
                     StartDefend((Direction)i);
                 }

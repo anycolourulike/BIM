@@ -245,7 +245,7 @@ public class EnemyAttackManager : MonoBehaviour
             : enemy.transform.position;
     }
  
-    private float GetRangeForEnemy(EnemyAI enemy)
+    public float GetRangeForEnemy(EnemyAI enemy)
     {
         if (enemy.CombatTarget == null) return meleeDistance;
         return enemy.CombatTarget.enemyType == CombatTarget.EnemyType.Melee

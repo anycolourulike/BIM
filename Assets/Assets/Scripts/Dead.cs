@@ -4,41 +4,28 @@ public class Dead : IState
 {
     private readonly EnemyAI _enemyAI;
     private readonly Mover _mover;
-    private readonly Fighter _fighter;
-    private readonly Health _health;
     private readonly EnemyAttackManager _enemyAttackManager;
 
-    public Dead(EnemyAI enemyAI, Fighter fighter, Mover mover, Health health, EnemyAttackManager enemyAttackManager)
+    public Dead(EnemyAI enemyAI, Mover mover, EnemyAttackManager enemyAttackManager)
     {
         _enemyAI = enemyAI;
         _mover = mover;
-        _fighter = fighter;
-        _health = health;
         _enemyAttackManager = enemyAttackManager;
     }
 
     public void OnEnter()
     {
-        // Stop all movement and attacks immediately
-        if (_mover != null) _mover.CancelNav();
-        //if (_fighter != null) _fighter.Cancel();
+        // Death animation and Fighter/collider shutdown are owned by Health.Die().
+        // Dead only tears down navigation and attack-role membership.
 
-        // Play death animation
-        if (_enemyAI.Anim != null)
-        {
-            _enemyAI.Anim.SetTrigger("Death");
-        }
+        if (_mover != null)
+            _mover.Deactivate();
 
-        // Remove from attack coordination so others reassign roles correctly
-        //_enemyAttackManager.ReleaseSlot(_enemyAI);
-        _enemyAttackManager.UnregisterEnemy(_enemyAI);
+        if (_enemyAttackManager != null)
+            _enemyAttackManager.UnregisterEnemy(_enemyAI);
 
-        // disable collider to avoid blocking pathing
-        var boxCollider = _enemyAI.GetComponent<BoxCollider>();
-        if (boxCollider != null) boxCollider.enabled = false;
-        var sphereCollider = _enemyAI.GetComponent<SphereCollider>();
-        if (sphereCollider != null) sphereCollider.enabled = false;
-        _mover.enabled = false;
+        // TODO: when the pickup/loot system lands, corpse collider handling goes
+        // here - it needs to keep one collider alive as the loot interaction trigger.
     }
 
     public void Tick()
@@ -47,15 +34,13 @@ public class Dead : IState
         // - Drop loot
         // - Spawn XP orbs
         // - Add score
-        // - Check player quest logic
-        // - Handle corpse cleanup
-        
-        // For now: corpse does nothing
+        // - Handle corpse cleanup / despawn
+        //
+        // For now the corpse just persists as an environment block.
     }
 
     public void OnExit()
     {
-        // Dead state never exits, but required by interface.
+        // Dead never transitions out, but IState requires it.
     }
 }
-

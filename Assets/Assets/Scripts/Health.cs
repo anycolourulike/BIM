@@ -28,6 +28,7 @@ public class Health : MonoBehaviour
         public delegate void AIHit();
         public static event AIHit aIHit;
         UnityEngine.AI.NavMeshAgent agent;
+        [SerializeField] float maxHealth = 100f;
         public float healthPts;
         bool isActivePlayer;
         
@@ -47,11 +48,19 @@ public class Health : MonoBehaviour
         Rigidbody rb;
         int lives;
 
+        // Normalised 0..1 health for the UI bars (PlayerHealthBar / EnemyHealthBar).
+        // The full damage/death/regen rework is separate - see
+        // Docs/Combat-Health-Stamina-Design.md section 3. This is the minimum
+        // needed to give the bars a value to read.
+        public float MaxHealth => maxHealth;
+        public float Health01 => maxHealth > 0f ? Mathf.Clamp01(healthPts / maxHealth) : 0f;
 
-        void Awake() 
+
+        void Awake()
         {
             //healthPoints = new LazyValue<float>(GetInitialHealth);
             anim = GetComponent<Animator>();
+            if (healthPts <= 0f) healthPts = maxHealth;
         }
 
         void Start() 

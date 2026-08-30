@@ -61,9 +61,25 @@ using System.Collections;
         }
 
         public void CancelNav()
-        {            
+        {
             navMeshAgent.isStopped = true;
             navMeshAgent.ResetPath();
+        }
+
+        // Full stop: park the agent, then disable it and this component.
+        // Used on death so a corpse's agent can't wedge living enemies in tight spaces.
+        public void Deactivate()
+        {
+            if (navMeshAgent != null && navMeshAgent.isActiveAndEnabled && navMeshAgent.isOnNavMesh)
+            {
+                navMeshAgent.isStopped = true;
+                navMeshAgent.ResetPath();
+            }
+
+            if (navMeshAgent != null)
+                navMeshAgent.enabled = false;
+
+            enabled = false;
         }
                
         private void UpdateAnimator()

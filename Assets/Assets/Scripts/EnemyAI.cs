@@ -62,7 +62,6 @@ public class EnemyAI : MonoBehaviour
     {
         TickSuspicion();
         _stateMachine.Tick();
-        Debug.Log($"{name} | State: {_stateMachine.CurrentState?.GetType().Name} | CanSee: {FOV.canSeePlayer} | Suspicion: {_suspicionTimer:F2}");
     }
 
     private void OnDestroy()
@@ -84,8 +83,8 @@ public class EnemyAI : MonoBehaviour
         PatrolState = new Patrol(Anim, this, PatrolPath, Mover, patrolSpeedFraction,
                                  waypointDwellTime, waypointTolerance, Mathf.Infinity, 0,
                                  startWaypoint);
-        AttackState = new Attack(this, Fighter, Mover, FOV, Health, enemyAttackManager);
-        DeadState   = new Dead(this, Fighter, Mover, Health, enemyAttackManager);
+        AttackState = new Attack(this, Fighter, Mover, enemyAttackManager);
+        DeadState   = new Dead(this, Mover, enemyAttackManager);
 
         _stateMachine.AddAnyTransition(DeadState,   () => Health != null && Health.isDead);
         _stateMachine.AddTransition(PatrolState, AttackState, () => FOV != null && FOV.canSeePlayer);
