@@ -15,6 +15,10 @@ public class Fighter : MonoBehaviour
     public Animator anim;
     public WeaponType currentWeapon = WeaponType.Unarmed;
 
+    [Tooltip("Blade-swing trail. Left empty, the first SwordSwingTrail in " +
+             "children is used. Optional - no trail if absent.")]
+    [SerializeField] private SwordSwingTrail swordSwingTrail;
+
     [Header("Animator Layers")]
     public int unarmedLayer = 0;
     public int swordMovementLayer = 1;
@@ -78,6 +82,7 @@ public class Fighter : MonoBehaviour
     {
         _mover = GetComponent<Mover>();
         _stamina = GetComponent<Stamina>();
+        if (swordSwingTrail == null) swordSwingTrail = GetComponentInChildren<SwordSwingTrail>(true);
     }
 
     private void Update()
@@ -232,6 +237,7 @@ public class Fighter : MonoBehaviour
     {
         anim?.SetTrigger("Sheath Sword");
         SetLayerWeight(swordMovementLayer, 0f);
+        if (swordSwingTrail != null) swordSwingTrail.StopNow();
         currentWeapon = WeaponType.Unarmed;
         currentTarget = null;
         if (CompareTag("Player") && playerTouch != null)
@@ -282,6 +288,7 @@ public class Fighter : MonoBehaviour
     {
         SetLayerWeight(swordAttackLayer, 1f);
         anim?.Play(attackStates[(int)dir], swordAttackLayer, 0f);
+        if (swordSwingTrail != null) swordSwingTrail.Play();
         // CombatSystem.Instance.DealDamage(target, baseDamage * damageMultiplier);
         if (isActiveAndEnabled)
             StartCoroutine(ResetAttackLayer());

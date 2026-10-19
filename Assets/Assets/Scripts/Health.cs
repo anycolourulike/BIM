@@ -76,9 +76,9 @@ public class Health : MonoBehaviour
             if (this.gameObject.CompareTag("Player"))
             {
                 hitScreenFX = GameObject.Find(name: "/PlayerCore/HUD/DamageScreen");
-                hitScreenFX.SetActive(false);
+                if (hitScreenFX != null) hitScreenFX.SetActive(false);
                 //vitals = GetComponent<PlayerVitals>();
-                LivesUpdate();
+                if (displayLives != null) LivesUpdate();
             }
         }       
 
